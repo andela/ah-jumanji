@@ -26,6 +26,8 @@ class RegistrationAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        # generate and return an authorised token
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -73,3 +75,9 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class RefreshToken(APIView):
+    """
+    A view to refresh existing JWT tokens
+    """
+    pass
