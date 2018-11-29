@@ -1,4 +1,5 @@
 [![Coverage Status](https://coveralls.io/repos/github/andela/ah-jumanji/badge.svg?branch=develop)](https://coveralls.io/github/andela/ah-jumanji?branch=develop)
+[![Build Status](https://travis-ci.org/andela/ah-jumanji.svg?branch=develop)](https://travis-ci.org/andela/ah-jumanji)
 
 Authors Haven - A Social platform for the creative at heart.
 =======
