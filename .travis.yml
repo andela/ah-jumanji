@@ -1,0 +1,26 @@
+language: python
+
+# Supported Python versions
+python:
+  - "3.5"
+  - "3.6"
+
+# Define env variables
+env:
+  - DJANGO_SETTINGS_MODULE="authors.settings"
+
+# Install dependencies
+install:
+  - pip install -r requirements.txt
+  - pip install pytest
+
+# Run tests
+script:
+  - pytest
+
+# Generate coverage report
+after_success:
+  - coveralls
+
+ notifications:
+    slack: andela:TZIVZCX4fSQf9zrBJjXD8Eq7
