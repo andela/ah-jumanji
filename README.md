@@ -1,7 +1,7 @@
+[![Build Status](https://travis-ci.org/andela/ah-jumanji.svg?branch=develop)](https://travis-ci.org/andela/ah-jumanji)
+
 Authors Haven - A Social platform for the creative at heart.
 =======
-
-[![Build Status](https://travis-ci.org/andela/ah-jumanji.svg?branch=develop)](https://travis-ci.org/andela/ah-jumanji)
 
 ## Vision
 Create a community of like minded authors to foster inspiration and innovation

@@ -22,5 +22,5 @@ script:
 after_success:
   - coveralls
 
- notifications:
-    slack: andela:TZIVZCX4fSQf9zrBJjXD8Eq7
+notifications:
+  slack: andela:TZIVZCX4fSQf9zrBJjXD8Eq7
