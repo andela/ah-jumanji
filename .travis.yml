@@ -5,6 +5,12 @@ python:
   - "3.5"
   - "3.6"
 
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'create database ah_jumanji;' -U postgres
+
 # Define env variables
 env:
   - DJANGO_SETTINGS_MODULE="authors.settings"
