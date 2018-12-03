@@ -8,4 +8,4 @@ class UserFactory(factory.Factory):
 
     username = factory.Sequence(lambda n: 'test_user%s' % n)
     email = factory.LazyAttribute(lambda o: '%s@email.com' % o.username)
-    password = factory.Faker('password')
+    password = 'Jake123#'
