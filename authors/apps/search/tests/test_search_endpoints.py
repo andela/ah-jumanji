@@ -40,7 +40,7 @@ class TestSearchFilter:
 
         # test assertions
         assert response.status_code == 200
-        assert len(response.data) == 1
+        assert len(response.data) == 4
 
     def test_filter_endpoint_authenticated_user(self, test_auth_client):
         # add an article to the db
@@ -59,7 +59,7 @@ class TestSearchFilter:
 
         # test assertions
         assert response.status_code == 200
-        assert len(response.data) == 1
+        assert len(response.data) == 4
 
     def test_search_the_database(self, test_client):
         # add 3 articles to the db
@@ -75,4 +75,4 @@ class TestSearchFilter:
         response = test_client.get(url)
 
         assert response.status_code == 200
-        assert isinstance(response.data, list)
+        assert isinstance(response.data, dict)
