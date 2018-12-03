@@ -88,7 +88,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         :return token:
         """
         return JWTAuthentication.generate_token(
-            user=obj, is_refresh_token=False)
+                                                    user=obj,
+                                                    is_refresh_token=False)
 
     def get_refresh_token(self, obj):
         """
@@ -96,7 +97,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         :return refresh token:
         """
         return JWTAuthentication.generate_token(
-            user=obj, is_refresh_token=True)
+                                                    user=obj,
+                                                    is_refresh_token=True)
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -118,7 +120,8 @@ class LoginSerializer(serializers.ModelSerializer):
         :return token:
         """
         return JWTAuthentication.generate_token(
-            user=obj, is_refresh_token=True)
+                                                    user=obj,
+                                                    is_refresh_token=True)
 
     def get_refresh_token(self, obj):
         """
@@ -126,7 +129,8 @@ class LoginSerializer(serializers.ModelSerializer):
         :return:
         """
         return JWTAuthentication.generate_token(
-            user=obj, is_refresh_token=False)
+                                                    user=obj,
+                                                    is_refresh_token=False)
 
     def validate(self, data):
         # The `validate` method is where we make sure that the current

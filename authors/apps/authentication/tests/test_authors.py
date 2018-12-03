@@ -10,6 +10,9 @@ def register_user(
         password="avengersassemble"):
     """Creating a test user"""
     user = User.objects.create_user(username, email, password)
+    thisuser = User.objects.get(email='thanos@avengers.com')
+    thisuser.is_active = True
+    thisuser.save()
     return user
 
 

@@ -6,7 +6,9 @@ from .views import (
     UserRetrieveUpdateAPIView,
     ResetPasswordRequestAPIView,
     ResetPasswordConfirmAPIView,
-    ListUsersAPIView)
+    ListUsersAPIView,
+    ActivateAPIView
+)
 
 
 urlpatterns = [
@@ -33,4 +35,9 @@ urlpatterns = [
         'users/reset_password_confirm/<str:token>',
         ResetPasswordConfirmAPIView.as_view(),
         name="reset_password_confirm"),
+    path(
+        'users/activate/<uidb64>/<token>',
+        ActivateAPIView.as_view(),
+        name='activate'),
+
 ]

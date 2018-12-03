@@ -1,24 +1,34 @@
+import jwt
+
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+
 from rest_framework import status
 from rest_framework import generics
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.urls import reverse
-from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
+
 from .models import User
 from .backends import JWTAuthentication
-import jwt
+from .backends import account_activation_token
 from .renderers import UserJSONRenderer
+from .confirmation import send_confirmation_email
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
 )
 
+
 # Instantiate base classes
 instance = User()
 auth = JWTAuthentication()
+
+User = get_user_model()
 
 
 class RegistrationAPIView(APIView):
@@ -33,12 +43,14 @@ class RegistrationAPIView(APIView):
         # The create serializer, validate serializer, save serializer pattern
         # below is common and you will see it a lot throughout this course and
         # your own work later on. Get familiar with it.
+
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        # generate and return an authorised token
+        send_confirmation_email(user, request)
 
+        # generate and return an authorised token
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -150,3 +162,42 @@ class ResetPasswordConfirmAPIView(RetrieveUpdateAPIView):
         return Response(
             {"message": "Your password has been updated successfully!"},
             status=status.HTTP_200_OK)
+
+
+class RefreshToken(APIView):
+    """
+    A view to refresh existing JWT tokens
+    """
+    pass
+
+
+class ActivateAPIView(APIView):
+    """
+    This view updates the user to activated if tokens are only valid
+    """
+    permission_classes = (AllowAny,)
+
+    def get(self, request, uidb64, token):
+        """
+        The get method retrieves the uidb64 and tokens from the link
+        to be decoded and used for confirmation
+        """
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user.is_active is True:
+            return Response({'message': 'Activation link has expired'})
+
+        if user is not None and account_activation_token.check_token(
+                                                                user, token):
+            # activate user and login:
+            user.is_active = True
+            user.save()
+
+            return Response({'message': 'Activation was successful'})
+
+        else:
+            return Response({'message': 'Activation link is invalid'})

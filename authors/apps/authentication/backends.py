@@ -1,11 +1,17 @@
 import datetime
 import logging
-
 import jwt
 from django.conf import settings
+
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
 from rest_framework.authentication import TokenAuthentication
+
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils import six
+
+"""Configure JWT Here"""
+
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -61,3 +67,14 @@ class JWTAuthentication(TokenAuthentication):
             settings.SECRET_KEY,
             algorithm='HS256').decode()
         return token
+
+
+class TokenGenerator(PasswordResetTokenGenerator):
+    def _generate_hash_value(self, user, timestamp):
+        return (
+            six.text_type(user.email) + six.text_type(timestamp) +
+            six.text_type(user.is_active)
+        )
+
+
+account_activation_token = TokenGenerator()

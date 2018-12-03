@@ -28,13 +28,6 @@ class Profile(models.Model):
     image = models.URLField(blank=True)
     country = models.CharField(max_length=3, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
-
-    def __str__(self):
-        """
-            Schema for representation of a Profile object in Terminal
-        """
-        return self.email
-
     created = models.DateTimeField(
         auto_now_add=True,
         help_text="This is the time of creation of this record"
@@ -44,6 +37,14 @@ class Profile(models.Model):
         help_text="This field is updated "
                   "any time this record is updated"
     )
+
+    def __str__(self):
+        """
+            Schema for representation of a Profile object in Terminal
+        """
+        return self.email
+
+
 
     def get_followers(self):
         """get all users that follow a user"""
