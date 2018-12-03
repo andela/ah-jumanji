@@ -187,7 +187,7 @@ Required fields: `email`, `password`
 
 ### Registration:
 
-`POST /api/users`
+`POST /api/users/register`
 
 Example request body:
 

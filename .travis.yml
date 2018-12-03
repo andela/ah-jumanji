@@ -17,10 +17,14 @@ install:
 # Run tests
 script:
   - pytest
+  - pytest --cov=authors/
 
 # Generate coverage report
 after_success:
   - coveralls
 
 notifications:
+
   slack: andela:TZIVZCX4fSQf9zrBJjXD8Eq7
+
+cache: pip
