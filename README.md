@@ -393,3 +393,18 @@ No additional parameters required
 ### Get Tags
 
 `GET /api/tags`
+
+## Setting up the application
+```
+ git clone https://github.com/andela/ah-jumanji.git
+ cd ah-jumanji
+ git checkout develop
+ virtualenv venv
+ source ./bin/activate
+ pip install -r requirements.txt
+ touch .env
+ echo "DATABASE_URL=postgres://username:password@host/db_name" >> .env
+ echo "DEBUG=on" >> .env
+ python manage.py migrate 
+ python manage.py runserver 
+```
