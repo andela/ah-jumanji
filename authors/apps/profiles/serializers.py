@@ -1,5 +1,9 @@
-import logging
+"""
+    Module serializes `Profile` model
+    :generates JSON from fields in `Profile` model
+"""
 
+import logging
 from rest_framework import serializers
 
 from authors.apps.authentication.serializers import UserSerializer
@@ -13,6 +17,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ("__all__")
 
+    def update(self, instance, prof_data):
+        """
+            Update profile items
+        """
+        # For every item provided in the payload,
+        # amend the profile accordingly
+        for(key, value) in prof_data.items():
+            setattr(instance.profile, key, value)
+        instance.save()
+
+        return instance
+
 
 class ProfileSerializer2(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
@@ -20,7 +36,7 @@ class ProfileSerializer2(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        exclude = ('username', 'email')
+        exclude = ('username',)
 
     def get_user(self, obj):
         """

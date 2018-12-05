@@ -1,3 +1,6 @@
+"""Configure JWT Here"""
+
+
 import datetime
 import logging
 import jwt
@@ -5,6 +8,7 @@ from django.conf import settings
 
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
+
 from rest_framework.authentication import TokenAuthentication
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
