@@ -3,11 +3,22 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.urls import reverse
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from .models import User
+from .backends import JWTAuthentication
+import jwt
 
 from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
 )
+
+# Instantiate base classes
+instance = User()
+auth = JWTAuthentication()
 
 
 class RegistrationAPIView(APIView):
@@ -76,8 +87,61 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class RefreshToken(APIView):
-    """
-    A view to refresh existing JWT tokens
-    """
-    pass
+class ResetPasswordRequestAPIView(APIView):
+    permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
+
+    def post(self, request):
+        email = request.data.get('email', None)
+        protocol = 'https://' if request.is_secure() else 'http://'
+        current_site = get_current_site(request)
+        user = instance.get_user(email=email)
+
+        # checks if email is provided
+        if not email:
+            message = {"message": "Please provide an email address"}
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+        # Checks if user is registered
+        if not user:
+            message = {"message": "Could not find that email address!"}
+            return Response(message, status=status.HTTP_404_NOT_FOUND)
+
+        # Send reset mail to registered user
+        token = auth.generate_reset_token(email)
+        reset_url = protocol + current_site.domain + \
+            reverse('reset_password_confirm',
+                    kwargs={"token": token})
+        subject, from_email, to = (
+            'Authors Haven Reset Password', settings.EMAIL_HOST_USER, email)
+        text_content = 'Reset Password'
+        html_content = "<p>Click on this <a href='" + \
+            reset_url + "'>Link<a> to reset your password</p>"
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        return Response(
+            {
+                "message":
+                "A password reset email has been sent to your account!"},
+            status=status.HTTP_200_OK)
+
+
+class ResetPasswordConfirmAPIView(RetrieveUpdateAPIView):
+    permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = UserSerializer
+
+    def put(self, request, token):
+        payload = jwt.decode(token, settings.SECRET_KEY)
+        user = instance.get_user(email=payload["email"])
+
+        password = request.data.get('password', None)
+        serializer = self.serializer_class(
+            request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        user.set_password(password)
+        user.save()
+
+        return Response(
+            {"message": "Your password has been updated successfully!"},
+            status=status.HTTP_200_OK)

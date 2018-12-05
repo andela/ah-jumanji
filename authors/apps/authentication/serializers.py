@@ -39,14 +39,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
         :param obj:
         :return token:
         """
-        return JWTAuthentication.generate_token(user=obj, is_refresh_token=False)
+        return JWTAuthentication.generate_token(
+            user=obj, is_refresh_token=False)
 
     def get_refresh_token(self, obj):
         """
         Generate a refresh token
         :return refresh token:
         """
-        return JWTAuthentication.generate_token(user=obj, is_refresh_token=True)
+        return JWTAuthentication.generate_token(
+            user=obj, is_refresh_token=True)
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -67,14 +69,16 @@ class LoginSerializer(serializers.ModelSerializer):
         :param obj:
         :return token:
         """
-        return JWTAuthentication.generate_token(user=obj, is_refresh_token=True)
+        return JWTAuthentication.generate_token(
+            user=obj, is_refresh_token=True)
 
     def get_refresh_token(self, obj):
         """
         fetch and return refresh token
         :return:
         """
-        return JWTAuthentication.generate_token(user=obj, is_refresh_token=False)
+        return JWTAuthentication.generate_token(
+            user=obj, is_refresh_token=False)
 
     def validate(self, data):
         # The `validate` method is where we make sure that the current
@@ -135,11 +139,18 @@ class UserSerializer(serializers.ModelSerializer):
     # characters. These values are the default provided by Django. We could
     # change them, but that would create extra work while introducing no real
     # benefit, so let's just stick with the defaults.
-    password = serializers.CharField(
+    password = serializers.RegexField(
+        regex=r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\!\@#\$%\^&]).*',
         max_length=128,
         min_length=8,
-        write_only=True
-    )
+        write_only=True,
+        error_messages={
+            'max_length': 'Password must have a maximum of 128 characters.',
+            'min_length': 'Password must have a minimum of 8 characters.',
+            'invalid': 'Password must contain at least a lowercase letter, '
+                       'an uppercase letter, a number and a special '
+                       'character.'
+        })
 
     class Meta:
         model = User
