@@ -1,8 +1,10 @@
+"""Configure JWT Here"""
+
+
 import datetime
 import logging
 
 import jwt
-import os
 
 # from django.conf import settings
 #
@@ -10,15 +12,17 @@ import os
 #
 # from .models import User
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from rest_framework import exceptions
 
-"""Configure JWT Here"""
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
+from rest_framework.authentication import TokenAuthentication
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 
-class JWTAuthentication(JSONWebTokenAuthentication):
+class JWTAuthentication(TokenAuthentication):
     """Inherit the JSON web authentication class from rest_framework_jwt"""
 
     @staticmethod
@@ -37,6 +41,20 @@ class JWTAuthentication(JSONWebTokenAuthentication):
             'nbf': datetime.datetime.utcnow() + datetime.timedelta(minutes=-5),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
         }, secret)
-        token = str(token)
+        # decode the byte type token to
+        token = token.decode('utf-8')
         logger.debug("is_refresh_token : %s : %s" % (is_refresh_token, token))
         return token
+
+    def authenticate_credentials(self, key):
+        try:
+            # decode the payload and get the user
+            payload = jwt.decode(key, settings.SECRET_KEY)
+            user = get_user_model().objects.get(username=payload['username'])
+        except (jwt.DecodeError, get_user_model().DoesNotExist):
+            raise exceptions.AuthenticationFailed('Invalid token')
+        except jwt.ExpiredSignatureError:
+            raise exceptions.AuthenticationFailed('Token has expired')
+        if not user.is_active:
+            raise exceptions.AuthenticationFailed('User inactive or deleted')
+        return (user, payload)
