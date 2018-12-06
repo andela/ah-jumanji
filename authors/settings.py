@@ -37,7 +37,7 @@ SECRET_KEY = '7pgozr2jn7zs_o%i8id6=rddie!*0f0qy3$oy$(8231i^4*@u3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -71,6 +71,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'authors.urls'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'jumanjidevs32@gmail.com'
+EMAIL_HOST_PASSWORD = 'jumanji@32'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 TEMPLATES = [
     {
@@ -138,7 +145,6 @@ CORS_ORIGIN_WHITELIST = (
     '0.0.0.0:4000',
     'localhost:4000',
 )
-
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
 # the `authentication` module. This module is registered above in a setting

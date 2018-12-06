@@ -58,3 +58,18 @@ class JWTAuthentication(TokenAuthentication):
         if not user.is_active:
             raise exceptions.AuthenticationFailed('User inactive or deleted')
         return (user, payload)
+
+    @staticmethod
+    def generate_reset_token(email):
+        """ generates reset password token """
+
+        token = jwt.encode(
+            {
+                "email": email,
+                "iat": datetime.datetime.utcnow(),
+                "exp": datetime.datetime.utcnow() +
+                datetime.timedelta(
+                    minutes=720)},
+            settings.SECRET_KEY,
+            algorithm='HS256').decode()
+        return token

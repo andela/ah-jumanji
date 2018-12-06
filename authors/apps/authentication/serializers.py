@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from authors.apps.authentication.backends import JWTAuthentication
 from .models import User
@@ -9,13 +10,60 @@ from .models import User
 class RegistrationSerializer(serializers.ModelSerializer):
     """Serializers registration requests and creates a new user."""
 
+    def __init__(self, *args, **kwargs):
+        super(RegistrationSerializer, self).__init__(*args, **kwargs)
+
+        # Override the default error_messages with a custom field error
+        for field in self.fields:
+            error_messages = self.fields[field].error_messages
+            error_messages['null'] = error_messages['blank'] \
+                = error_messages['required'] \
+                = 'Please fill in the {}.'.format(field)
+
+    # Ensure the username entered is unique and has a descriptive error message
+    # when a duplicate username is entered and an invalid username.
+    username = serializers.RegexField(
+        regex='^[A-Za-z\-\_]+\d*$',
+        min_length=4,
+        max_length=30,
+        required=True,
+        validators=[UniqueValidator(
+            queryset=User.objects.all(),
+            message='The username already exists. Kindly try another.'
+        )],
+        error_messages={
+            'min_length': 'Username must have a minimum of 4 characters.',
+            'max_length': 'Username must have a maximum of 30 characters.',
+            'invalid': 'Username cannot only have alphanumeric characters.'
+        }
+    )
+
+    # Ensure the email entered is unique and has a descriptive error message
+    # when a duplicate email is entered and an invalid email address.
+    email = serializers.EmailField(
+        validators=[UniqueValidator(
+            queryset=User.objects.all(),
+            message='Email already exists. Sign in instead or try another.'
+        )],
+        error_messages={
+            'invalid': 'You have input an invalid email. Kindly check again.'
+        }
+    )
+
     # Ensure passwords are at least 8 characters long, no longer than 128
     # characters, and can not be read by the client.
-    password = serializers.CharField(
+    password = serializers.RegexField(
+        regex=r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\!\@#\$%\^&]).*',
         max_length=128,
         min_length=8,
-        write_only=True
-    )
+        write_only=True,
+        error_messages={
+            'max_length': 'Password must have a maximum of 128 characters.',
+            'min_length': 'Password must have a minimum of 8 characters.',
+            'invalid': 'Password must contain at least a lowercase letter, '
+                       'an uppercase letter, a number and a special '
+                       'character.'
+        })
 
     token = serializers.SerializerMethodField()
     refresh_token = serializers.SerializerMethodField()
@@ -39,14 +87,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
         :param obj:
         :return token:
         """
-        return JWTAuthentication.generate_token(user=obj, is_refresh_token=False)
+        return JWTAuthentication.generate_token(
+            user=obj, is_refresh_token=False)
 
     def get_refresh_token(self, obj):
         """
         Generate a refresh token
         :return refresh token:
         """
-        return JWTAuthentication.generate_token(user=obj, is_refresh_token=True)
+        return JWTAuthentication.generate_token(
+            user=obj, is_refresh_token=True)
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -67,14 +117,16 @@ class LoginSerializer(serializers.ModelSerializer):
         :param obj:
         :return token:
         """
-        return JWTAuthentication.generate_token(user=obj, is_refresh_token=True)
+        return JWTAuthentication.generate_token(
+            user=obj, is_refresh_token=True)
 
     def get_refresh_token(self, obj):
         """
         fetch and return refresh token
         :return:
         """
-        return JWTAuthentication.generate_token(user=obj, is_refresh_token=False)
+        return JWTAuthentication.generate_token(
+            user=obj, is_refresh_token=False)
 
     def validate(self, data):
         # The `validate` method is where we make sure that the current
@@ -135,11 +187,18 @@ class UserSerializer(serializers.ModelSerializer):
     # characters. These values are the default provided by Django. We could
     # change them, but that would create extra work while introducing no real
     # benefit, so let's just stick with the defaults.
-    password = serializers.CharField(
+    password = serializers.RegexField(
+        regex=r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\!\@#\$%\^&]).*',
         max_length=128,
         min_length=8,
-        write_only=True
-    )
+        write_only=True,
+        error_messages={
+            'max_length': 'Password must have a maximum of 128 characters.',
+            'min_length': 'Password must have a minimum of 8 characters.',
+            'invalid': 'Password must contain at least a lowercase letter, '
+                       'an uppercase letter, a number and a special '
+                       'character.'
+        })
 
     class Meta:
         model = User
