@@ -9,4 +9,5 @@ class Base(models.Model):
     )
     modified = models.DateTimeField(
         auto_now=True,
-        help_text="This field is updated any time this record is updated")
+        help_text="This field is updated any time this record is updated"
+    )

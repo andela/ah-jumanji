@@ -2,17 +2,9 @@ import datetime
 import logging
 
 import jwt
-
-# from django.conf import settings
-#
-# from rest_framework import authentication, exceptions
-#
-# from .models import User
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
-
-"""Configure JWT Here"""
 from rest_framework.authentication import TokenAuthentication
 
 # Get an instance of a logger
@@ -65,8 +57,7 @@ class JWTAuthentication(TokenAuthentication):
                 "email": email,
                 "iat": datetime.datetime.utcnow(),
                 "exp": datetime.datetime.utcnow() +
-                datetime.timedelta(
-                    minutes=720)},
+                datetime.timedelta(minutes=720)},
             settings.SECRET_KEY,
             algorithm='HS256').decode()
         return token

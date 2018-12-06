@@ -7,11 +7,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
-import os
+import environ
 import logging
 import logging.config
-
-import environ
+import os
 from django.utils.log import DEFAULT_LOGGING
 
 # Get an instance of a logger
