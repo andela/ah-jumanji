@@ -13,15 +13,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import exceptions
 
 """Configure JWT Here"""
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-
-# Get an instance of a logger
-logger = logging.getLogger(__name__)
-
-
-class JWTAuthentication(JSONWebTokenAuthentication):
-    """Inherit the JSON web authentication class from rest_framework_jwt"""
-
 from rest_framework.authentication import TokenAuthentication
 
 # Get an instance of a logger
