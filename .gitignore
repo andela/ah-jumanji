@@ -24,6 +24,9 @@ var/
 .installed.cfg
 *.egg
 .idea/
+.DS_Store
+.vscode/
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -93,3 +96,5 @@ ENV/
 db.sqlite3
 
 authors/apps/*/migrations/*
+.DS_Store
+.vscode/
