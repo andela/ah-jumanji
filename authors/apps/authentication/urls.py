@@ -5,13 +5,18 @@ from .views import (
     RegistrationAPIView,
     UserRetrieveUpdateAPIView,
     ResetPasswordRequestAPIView,
-    ResetPasswordConfirmAPIView)
+    ResetPasswordConfirmAPIView,
+    ListUsersAPIView)
+
 
 urlpatterns = [
     path(
         'user/',
         UserRetrieveUpdateAPIView.as_view(),
         name='user-detail'),
+    path(
+        'users/', ListUsersAPIView.as_view(),
+        name='users-List'),
     path(
         'users/register',
         RegistrationAPIView.as_view(),
