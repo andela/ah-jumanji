@@ -3,7 +3,9 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import generics
 
+from .models import User
 from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
@@ -38,6 +40,7 @@ class LoginAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
+        print(user)
 
         # Notice here that we do not call `serializer.save()` like we did for
         # the registration endpoint. This is because we don't actually have
@@ -49,8 +52,14 @@ class LoginAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class ListUsersAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
 
@@ -58,6 +67,8 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         # There is nothing to validate or save here. Instead, we just want the
         # serializer to handle turning our `User` object into something that
         # can be JSONified and sent to the client.
+        print('user')
+        print(request.user)
         serializer = self.serializer_class(request.user)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

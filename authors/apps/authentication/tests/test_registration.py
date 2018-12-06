@@ -37,23 +37,32 @@ class TestRegistration:
         assert su.is_superuser is True
 
     def test_user_registration(self, test_client):
-        response = test_client.post(reverse('register'), data=self.user, format='json')
+        response = test_client.post(
+            reverse('register'),
+            data=self.user,
+            format='json')
         assert response.status_code is 201
         assert User.objects.count() > 0
 
     def test_token_in_response(self, test_client):
-        response = test_client.post(reverse('register'), self.user, format='json')
+        response = test_client.post(
+            reverse('register'), self.user, format='json')
 
         assert isinstance(response.data, dict)
         assert 'username' in response.data
         assert 'token' in response.data
 
     def test_add_existing_user(self, test_client):
-        response = test_client.post(reverse('register'), self.user, format='json')
-        response2 = test_client.post(reverse('register'), self.user, format='json')
+        response = test_client.post(
+            reverse('register'), self.user, format='json')
 
+        assert isinstance(response.data, dict)
+        assert 'username' in response.data
+        response2 = test_client.post(
+            reverse('register'), self.user, format='json')
         assert response2.status_code == 400
         assert 'errors' in response2.data
-
-        assert response2.data['errors']['email'][0] == "user with this email already exists."
-        assert response2.data['errors']['username'][0] == "user with this username already exists."
+        assert response2.data['errors']['email'][0] == \
+            "user with this email already exists."
+        assert response2.data['errors']['username'][0] == \
+            "user with this username already exists."
