@@ -2,7 +2,8 @@ import pytest
 from rest_framework.reverse import reverse
 
 from authors.apps.authentication.models import User
-from authors.apps.authentication.tests.factories.authentication import UserFactory
+from authors.apps.authentication.tests.factories.authentication import \
+    UserFactory
 
 
 @pytest.mark.django_db
@@ -23,5 +24,6 @@ class TestLogin:
         User.objects.create_user(**self.user['user'])
         assert User.objects.count() > 0
 
-        response = test_client.post(reverse('login'), data=self.user, format='json')
+        response = test_client.post(reverse('login'), data=self.user,
+                                    format='json')
         assert response.status_code == 200

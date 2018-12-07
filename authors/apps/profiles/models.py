@@ -1,9 +1,12 @@
+# Create your models here.
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Local imports
 from ..authentication.models import User
+
 
 # Create your models here.
 
@@ -32,6 +35,51 @@ class Profile(models.Model):
         """
         return self.email
 
+    created = models.DateTimeField(
+        auto_now_add=True,
+        help_text="This is the time of creation of this record"
+    )
+    modified = models.DateTimeField(
+        auto_now=True,
+        help_text="This field is updated "
+                  "any time this record is updated"
+    )
+
+    def get_followers(self):
+        """get all users that follow a user"""
+        followers = Following.objects.filter(followed=self.user)
+        return followers
+
+    def get_followed(self):
+        """
+        get all users that a user follows
+        :return queryset:
+        """
+        followed = Following.objects.filter(follower=self.user)
+        return followed
+
+    def is_follower(self, usr):
+        """
+        check if user follows another user
+        :param usr:
+        :return bool:
+        """
+        for follows in self.get_followers():
+            if follows.follower == usr:
+                return True
+        return False
+
+    def is_followed(self, usr):
+        """
+        check if user is followed by a particular user
+        :param usr:
+        :return bool:
+        """
+        for follows in self.get_followed():
+            if follows.followed == usr:
+                return True
+        return False
+
 
 # Recieve a signal whenever a User is created
 # and initialize a Profile tied to the User
@@ -53,3 +101,25 @@ def save_profile(sender, instance, **kwargs):
         if User is saved
     """
     instance.profile.save()
+
+
+class Following(models.Model):
+    follower = models.ForeignKey(
+        get_user_model(),
+        related_name="relationship_creator",
+        on_delete=models.CASCADE
+    )
+    followed = models.ForeignKey(
+        get_user_model(),
+        related_name="followed_user",
+        on_delete=models.CASCADE
+    )
+
+    created = models.DateTimeField(
+        auto_now_add=True,
+        help_text="This is the time of creation of this record"
+    )
+    modified = models.DateTimeField(
+        auto_now=True,
+        help_text="This field is updated any time this record is updated"
+    )
