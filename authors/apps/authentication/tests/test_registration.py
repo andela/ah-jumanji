@@ -46,10 +46,8 @@ class TestRegistration:
         assert User.objects.count() > 0
 
     def test_token_in_response(self, test_client):
-        """Test token is generated and is at the response"""
-        response = test_client.post(reverse('register'),
-                                    self.user, format='json')
-
+        response = test_client.post(
+            reverse('register'), self.user, format='json')
         assert isinstance(response.data, dict)
         assert 'username' in response.data
         assert 'token' in response.data
