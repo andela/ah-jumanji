@@ -7,7 +7,6 @@ from django.dispatch import receiver
 # Local imports
 from ..authentication.models import User
 
-
 # Create your models here.
 
 
@@ -31,12 +30,6 @@ class Profile(models.Model):
     twitter_handle = models.CharField(max_length=15, blank=True)
     website = models.URLField(blank=True)
 
-    def __str__(self):
-        """
-            Schema for representation of a Profile object in Terminal
-        """
-        return self.email
-
     created = models.DateTimeField(
         auto_now_add=True,
         help_text="This is the time of creation of this record"
@@ -46,6 +39,12 @@ class Profile(models.Model):
         help_text="This field is updated "
                   "any time this record is updated"
     )
+
+    def __str__(self):
+        """
+            Schema for representation of a Profile object in Terminal
+        """
+        return self.email
 
     def get_followers(self):
         """get all users that follow a user"""
@@ -93,8 +92,7 @@ def init_profile(sender, instance, created, **kwargs):
     """
     if created:
         Profile.objects.create(
-            user=instance,
-            username=instance.username, first_name=instance.username)
+            user=instance, first_name=instance.username)
 
 
 @receiver(post_save, sender=User)

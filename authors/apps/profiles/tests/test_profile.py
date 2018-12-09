@@ -8,7 +8,6 @@ from django.urls import reverse
 # local imports
 from authors.apps.profiles.models import Profile
 from authors.apps.authentication.models import User
-
 # Create your tests here.
 
 
@@ -31,7 +30,7 @@ class TestProfileModel(APITestCase):
             "username": "rkemmy69",
             "email": "rkemmy69@mymail.com",
             "password": "#Strong2-password"
-            }
+        }
         }
 
     def register_user_helper(self):
@@ -41,7 +40,6 @@ class TestProfileModel(APITestCase):
         # Register a user to generate a token
         register_response = self.client.post(
             self.register_endpoint, self.user, format='json')
-
         user = User.objects.get(username=self.user['user']['username'])
         user.is_active = True
         user.save()

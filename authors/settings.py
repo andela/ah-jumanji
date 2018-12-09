@@ -48,13 +48,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # third party apps
     'corsheaders',
     'django_extensions',
     'rest_framework',
 
+    # External apps
     'authors.apps.authentication',
     'authors.apps.core',
     'authors.apps.profiles',
+    'authors.apps.articles',
 ]
 
 MIDDLEWARE = [

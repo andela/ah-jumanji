@@ -36,7 +36,8 @@ class ProfileDetails(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, username):
-        profile = get_object_or_404(Profile, username=username)
+        user = get_object_or_404(get_user_model(), username=username)
+        profile = Profile.objects.get_or_create(user=user)
         data = ProfileSerializer(profile).data
         return Response(data)
 

@@ -2,7 +2,6 @@
     Module serializes `Profile` model
     :generates JSON from fields in `Profile` model
 """
-
 import logging
 from rest_framework import serializers
 
@@ -13,9 +12,23 @@ logger = logging.getLogger(__name__)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    """
+        Generate JSON from `Profile model
+    """
+
     class Meta:
+        """
+            Map fields in `Profile` model with serializer's JSON params
+        """
         model = Profile
-        fields = ("__all__")
+
+        # Collect all the fields in `Profile` model
+        fields = '__all__'
+
+        # read only fiels - not editable
+        read_only_fields = [
+            'user',
+        ]
 
     def update(self, instance, prof_data):
         """
