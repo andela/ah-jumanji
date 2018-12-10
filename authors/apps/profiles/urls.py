@@ -1,3 +1,6 @@
+"""
+    Define the urls where the views for `profiles` are accessible
+"""
 from django.urls import path
 from . import views
 from authors.apps.profiles.views import GetUserProfile, \
@@ -10,4 +13,5 @@ urlpatterns = [
     path('<str:username>/follow', FollowUser.as_view(), name="follow"),
     path('followers/', ListAllFollowers.as_view(), name="followers"),
     path('followed/', ListAllFollowed.as_view(), name="followed"),
+    path('users/profiles', views.ProfileView.as_view(), name='user_profiles'),
 ]

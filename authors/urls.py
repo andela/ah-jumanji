@@ -30,4 +30,8 @@ urlpatterns = [
         name='profiles'),
     path('api/profile/', include('authors.apps.profiles.urls'),
          name='profile'),
+    path('admin/', admin.site.urls, name='admin'),
+    path('api/', include(
+        'authors.apps.authentication.urls'), name='authentication'),
+    path('api/', include('authors.apps.profiles.urls'), name='profiles'),
 ]

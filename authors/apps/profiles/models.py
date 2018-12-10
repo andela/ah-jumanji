@@ -22,12 +22,21 @@ class Profile(models.Model):
 
     # Add fields onto `Profile` model
     username = models.CharField(max_length=50, blank=True)
-    email = models.EmailField(blank=True)
-    full_name = models.CharField(max_length=50, blank=True)
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
     bio = models.CharField(max_length=200, blank=True)
-    image = models.URLField(blank=True)
+    profile_photo = models.URLField(blank=True)
     country = models.CharField(max_length=3, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
+    twitter_handle = models.CharField(max_length=15, blank=True)
+    website = models.URLField(blank=True)
+
+    def __str__(self):
+        """
+            Schema for representation of a Profile object in Terminal
+        """
+        return self.email
+
     created = models.DateTimeField(
         auto_now_add=True,
         help_text="This is the time of creation of this record"
@@ -37,14 +46,6 @@ class Profile(models.Model):
         help_text="This field is updated "
                   "any time this record is updated"
     )
-
-    def __str__(self):
-        """
-            Schema for representation of a Profile object in Terminal
-        """
-        return self.email
-
-
 
     def get_followers(self):
         """get all users that follow a user"""
@@ -92,7 +93,8 @@ def init_profile(sender, instance, created, **kwargs):
     """
     if created:
         Profile.objects.create(
-            user=instance, username=instance.username, email=instance.email)
+            user=instance,
+            username=instance.username, first_name=instance.username)
 
 
 @receiver(post_save, sender=User)

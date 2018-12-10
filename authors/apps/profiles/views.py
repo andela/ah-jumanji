@@ -1,24 +1,30 @@
-from django.shortcuts import get_object_or_404
-import logging
+"""
+Views for profiles app
+"""
 
-# Create your views here.
-from rest_framework import generics
+import logging
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
+
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import exceptions, status, reverse
 
-from authors.apps.profiles.models import Profile, Following
+# Create your views here.
+
+# local imports
 from authors.apps.profiles.serializers import (
-                                                    ProfileSerializer,
-                                                    FollowingSerializer,
-                                                    FollowedSerializer,
-                                                    FollowersSerializer,
-                                                    ProfileSerializer2)
+    ProfileSerializer, FollowingSerializer, FollowedSerializer,
+    FollowersSerializer, ProfileSerializer2)
+
+from authors.apps.profiles.models import Profile, Following
 
 logger = logging.getLogger(__name__)
 
+
+# Create your views here.
 
 class ProfilesList(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -35,7 +41,59 @@ class ProfileDetails(generics.ListAPIView):
         return Response(data)
 
 
+class ProfileView(APIView):
+    """
+        Class contains all the views possible for the `profiles` app
+    """
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        """
+            Return the profiles of the logged in User
+        """
+        # logged in user
+        user = request.user
+        user_profile = Profile.objects.get(user=user)
+        serializer = ProfileSerializer(user_profile)
+
+        # render the response as defined in the API Spec
+        formatted_user_profile = {
+            "profile": serializer.data
+        }
+
+        return Response(formatted_user_profile, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        """
+            Update items on the `Profile` for logged in user
+        """
+        # Extract profile data to be updated from request
+        profile_data = request.data.get('profile')
+        # logged in user
+        user = request.user
+
+        # call serializer with extracted data and
+        # logged in user (who owns the profile)
+        serializer = ProfileSerializer(user, data=profile_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # fetch the updated profile, and return it
+        user_profile = Profile.objects.get(user=user)
+        serializer = ProfileSerializer(user_profile)
+
+        # render the response as defined in the API Spec
+        formatted_user_profile = {
+            "profile": serializer.data
+        }
+
+        return Response(formatted_user_profile, status=status.HTTP_200_OK)
+
+
 class GetUserProfile(APIView):
+    """
+        Defines the view for getting a User's profile
+    """
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer2
 
@@ -66,6 +124,9 @@ class GetUserProfile(APIView):
 
 
 class FollowUser(APIView):
+    """
+        Defines the follower relationship
+    """
     permission_classes = (IsAuthenticated,)
     serializer_class = FollowingSerializer
 
@@ -165,6 +226,9 @@ class ListAllFollowers(APIView):
 
 
 class ListAllFollowed(APIView):
+    """
+        Lists all users who follow a user
+    """
     permission_classes = (IsAuthenticated,)
     serializer_class = FollowedSerializer
 

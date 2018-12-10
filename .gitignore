@@ -95,6 +95,11 @@ ENV/
 # SQLite3
 db.sqlite3
 
+# Migrations
 authors/apps/*/migrations/*
 .DS_Store
 .vscode/
+
+# vscode cache files and log files
+.vscode/
+logfile
