@@ -10,9 +10,12 @@ from rest_framework.views import APIView
 from rest_framework import exceptions, status, reverse
 
 from authors.apps.profiles.models import Profile, Following
-from authors.apps.profiles.serializers import ProfileSerializer, \
-    FollowingSerializer, FollowedSerializer, \
-    FollowersSerializer, ProfileSerializer2
+from authors.apps.profiles.serializers import (
+                                                    ProfileSerializer,
+                                                    FollowingSerializer,
+                                                    FollowedSerializer,
+                                                    FollowersSerializer,
+                                                    ProfileSerializer2)
 
 logger = logging.getLogger(__name__)
 

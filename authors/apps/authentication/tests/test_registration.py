@@ -1,7 +1,7 @@
 import random
 import string
-
 import pytest
+
 from faker import Factory
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -34,7 +34,7 @@ class TestRegistration:
     def test_create_super_user(self):
         """Test super user can be created"""
         su = User.objects.create_superuser(**self.user['user'])
-        assert su.is_active is True
+        assert su.is_active is False
         assert su.is_staff is True
         assert su.is_superuser is True
 

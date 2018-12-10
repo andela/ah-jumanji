@@ -21,6 +21,7 @@ class UserFactory2(factory.DjangoModelFactory):
     username = factory.Sequence(lambda n: 'test_user%s' % n)
     email = factory.LazyAttribute(lambda o: '%s@email.com' % o.username)
     password = factory.Faker('password')
+    is_active = True
 
 
 class ProfileFactory(factory.DjangoModelFactory):
