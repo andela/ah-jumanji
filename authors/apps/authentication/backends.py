@@ -1,11 +1,9 @@
 """Configure JWT Here"""
 
-
 import datetime
 import logging
 import jwt
 from django.conf import settings
-
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
 
@@ -15,7 +13,6 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils import six
 
 """Configure JWT Here"""
-
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -81,4 +78,5 @@ class TokenGenerator(PasswordResetTokenGenerator):
         )
 
 
+# This is in use by FABISH
 account_activation_token = TokenGenerator()

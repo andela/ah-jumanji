@@ -7,7 +7,7 @@ from authors.apps.authentication.models import User
 def register_user(
         username="Thanos",
         email="thanos@avengers.com",
-        password="avengersassemble"):
+        password="#1Avengersassemble"):
     """Creating a test user"""
     user = User.objects.create_user(username, email, password)
 
@@ -27,7 +27,7 @@ class TestProfile(TestCase):
         self.login_credentials = {
             'user': {
                 'email': "thanos@avengers.com",
-                'password': "avengersassemble"
+                'password': "#1Avengersassemble"
             }
         }
 
@@ -39,6 +39,8 @@ class TestProfile(TestCase):
             data=self.login_credentials,
             format='json',
         )
+        print(response.data['token'])
+        print(response.data['username'])
         return response.data['token']
 
     def test_get_all_user_profiles(self):
@@ -55,7 +57,7 @@ class TestProfile(TestCase):
         """Test get not existing user profile"""
         token = self.login_user()
         response = self.client.get(
-            '/api/profiles/Hulk',
+            '/api/profiles/Hulkdff',
             format='json',
             HTTP_AUTHORIZATION='Token ' + token
         )

@@ -14,6 +14,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from .apps.articles import urls
 
 urlpatterns = [
     path(
@@ -28,10 +29,11 @@ urlpatterns = [
         'api/',
         include('authors.apps.profiles.urls'),
         name='profiles'),
-    path('api/profile/', include('authors.apps.profiles.urls'),
-         name='profile'),
-    path('admin/', admin.site.urls, name='admin'),
-    path('api/', include(
-        'authors.apps.authentication.urls'), name='authentication'),
-    path('api/', include('authors.apps.profiles.urls'), name='profiles'),
+    path(
+        'api/profile/',
+        include('authors.apps.profiles.urls'),
+        name='profile'),
+    path(
+        'api/articles/', include(urls),
+        name='all_articles'),
 ]
