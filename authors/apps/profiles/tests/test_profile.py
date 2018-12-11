@@ -40,6 +40,7 @@ class TestProfileModel(APITestCase):
         # Register a user to generate a token
         register_response = self.client.post(
             self.register_endpoint, self.user, format='json')
+        # Activate user account manually
         user = User.objects.get(username=self.user['user']['username'])
         user.is_active = True
         user.save()
@@ -114,7 +115,7 @@ class TestProfileModel(APITestCase):
 
         # assert that profile contains username of signed in user
         self.assertEqual(
-            user_profile['first_name'], user['username']
+            user_profile['username'], user['username']
         )
 
     def test_user_can_update_profile(self):

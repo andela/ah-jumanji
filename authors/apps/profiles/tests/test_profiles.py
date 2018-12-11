@@ -39,8 +39,6 @@ class TestProfile(TestCase):
             data=self.login_credentials,
             format='json',
         )
-        print(response.data['token'])
-        print(response.data['username'])
         return response.data['token']
 
     def test_get_all_user_profiles(self):
