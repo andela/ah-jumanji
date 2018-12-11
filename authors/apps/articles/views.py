@@ -1,14 +1,14 @@
-from rest_framework import views, status
-from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from .serializers import ArticleSerializer
 from .models import Articles
+from .serializers import ArticleSerializer
 
 
-class ArticleView(views.APIView):
-
+class ArticleView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ArticleSerializer
     queryset = Articles.objects.all()
@@ -18,7 +18,7 @@ class ArticleView(views.APIView):
     Posts and gets articles from the model
     """
 
-    def get(self, request):
+    def get(self, request, **kwargs):
 
         # Overriding to achieve pagination
         page = self.paginate_queryset(self.queryset)
@@ -60,6 +60,7 @@ class ArticleView(views.APIView):
 
     @staticmethod
     def post(request, **kwargs):
+        """Create a new article"""
         passed_data = request.data
         serializer = ArticleSerializer()
         result = serializer.posting_articles(passed_data)
@@ -70,12 +71,13 @@ class ArticleView(views.APIView):
                             status.HTTP_201_CREATED)
 
 
-class ArticleSpecificFunctions(views.APIView):
+class ArticleSpecificFunctions(GenericAPIView):
     permission_classes = (IsAuthenticated,)
+    serializer_class = ArticleSerializer
 
     @staticmethod
     def get(request, slug):
-        """The get specific request function"""
+        """Retrieve a specific article"""
         try:
             serializer = ArticleSerializer()
             result = serializer.get_specific_objects(slug)
@@ -88,6 +90,7 @@ class ArticleSpecificFunctions(views.APIView):
 
     @staticmethod
     def put(request, slug):
+        """Edit a specific article"""
         payload = request.data  # values to update
         serializer = ArticleSerializer()
         result = serializer.updateArticle(payload, slug)
@@ -101,6 +104,7 @@ class ArticleSpecificFunctions(views.APIView):
 
     @staticmethod
     def delete(request, slug, **kwargs):
+        """Delete a specific article"""
         serializer = ArticleSerializer()
         result = serializer.deleteArticle(slug)
         if result == 'Article does not exist':
