@@ -12,6 +12,7 @@ import logging
 import logging.config
 import os
 from django.utils.log import DEFAULT_LOGGING
+import dj_database_url
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -62,6 +63,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # recomended for serving static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -103,7 +106,8 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 
 DATABASES = {
     # read the database environ
-    'default': env.db()
+    'default': dj_database_url.config(
+        default=env.db(), conn_max_age=1000)
 }
 
 # Password validation
@@ -199,3 +203,17 @@ logging.config.dictConfig({
         'django.server': DEFAULT_LOGGING['loggers']['django.server'],
     },
 })
+
+# Configure service for static files within the django app
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_URL = '/static/'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
+# Efficiently resizes the served static files.
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
