@@ -99,3 +99,5 @@ db.sqlite3
 authors/apps/*/migrations/*
 
 logfile
+# search engine index directory
+whoosh_index/

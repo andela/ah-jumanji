@@ -19,6 +19,7 @@ class TestFollowerSystem:
             reverse('profile-details', args=[test_user.username]))
         assert response.status_code == 200
         assert 'following' in response.data
+        logger.error(response.data)
         assert response.data['user'] == test_user.username
         assert isinstance(response.data['following'], bool)
 

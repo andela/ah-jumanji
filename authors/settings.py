@@ -53,6 +53,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_extensions',
     'rest_framework',
+    'rest_framework_swagger',
+    'django_filters',
+    'haystack',
+    'drf_haystack',
 
     # External apps
     'authors.apps.authentication',
@@ -60,6 +64,7 @@ INSTALLED_APPS = [
     'authors.apps.profiles',
     'authors.apps.articles',
     'authors.apps.comments',
+    'authors.apps.search'
 ]
 
 MIDDLEWARE = [
@@ -107,8 +112,7 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 
 DATABASES = {
     # read the database environ
-    'default': dj_database_url.config(
-        default=env.db(), conn_max_age=1000)
+    'default': env.db()
 }
 
 # Password validation
@@ -218,3 +222,16 @@ STATICFILES_DIRS = (
 
 # Efficiently resizes the served static files.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Haystack is useful as a django search backend
+HAYSTACK_CONNECTIONS = {
+    # Whoosh is a fast, pure Python search engine library.
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        # defines a storage location for the database index
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    },
+}
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 10
+# This signal processor enforces the real time of the index as the database
+# is updated
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
