@@ -36,4 +36,8 @@ urlpatterns = [
     path(
         'api/articles/', include(urls),
         name='all_articles'),
+    path(
+        'api/articles/',
+        include('authors.apps.comments.urls'),
+        name='comments'),
 ]
