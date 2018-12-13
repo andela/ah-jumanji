@@ -44,7 +44,7 @@ class Profile(models.Model):
         """
             Schema for representation of a Profile object in Terminal
         """
-        return self.email
+        return self.username
 
     def get_followers(self):
         """get all users that follow a user"""
