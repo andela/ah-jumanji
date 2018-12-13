@@ -1,7 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
     path('', views.ArticleView.as_view(), name='articles'),
     path('<slug>/', views.ArticleSpecificFunctions.as_view(),
-         name='articleSpecific')]
+         name='articleSpecific'),
+    path('q/', include('authors.apps.search.urls'),
+         name="filter-articles")
+]

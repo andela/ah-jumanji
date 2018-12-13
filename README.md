@@ -394,6 +394,66 @@ No additional parameters required
 
 `GET /api/tags`
 
+### Search & Filter
+The application offers an endpoint for filtering and searching for article 
+using different criteria as follows.
+##### Filter
+`GET /api/articles/q/filter/< ?param=value&param2=value >`
+
+The filter backend provides filter by the following parameters:
+
+- title
+- title__contains
+- description
+- description__contains
+- slug
+- slug__contains
+- body
+- body__contains
+- taglist
+- taglist__contains
+- createdAt
+- createdAt__year__lt
+- createdAt__year__gt
+- updatedAt
+- updatedAt__year__lt
+- updatedAt__year__gt
+- author__username
+
+##### Search
+
+`GET /api/articles/q/search/?`
+
+The search endpoint employs the Whoosh backend to index the articles to provide
+faster search and more search parameters:
+
+- author
+- title
+- tags
+- keywords
+- pub_date
+- edit_date
+- slug
+
+all the above parameters take the following additional options as
+`parameter__option` or `parameter__not_option`
+
+```
+    content
+    contains
+    exact
+    gt
+    gte
+    lt
+    lte
+    in
+    startswith
+    endswith
+    range
+    fuzzy
+```
+
+
 ## Setting up the application
 ```
  git clone https://github.com/andela/ah-jumanji.git

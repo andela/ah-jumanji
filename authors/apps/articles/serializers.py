@@ -1,10 +1,10 @@
 from rest_framework import serializers
+
 from .models import Articles
 from authors.apps.authentication.models import User
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Articles
         fields = ("__all__")
@@ -118,7 +118,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             deleted_article = Articles.objects.get(slug=passed_slug)
             title = deleted_article.title
             deleted_article.delete()
-            return('Article title: {} deleted successfully'.format(title))
+            return ('Article title: {} deleted successfully'.format(title))
 
         except Exception as What_is_this:
             print('Received error is : {}'.format(What_is_this))
@@ -126,7 +126,6 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class AuthorSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ("__all__")
@@ -141,3 +140,15 @@ class AuthorSerializer(serializers.ModelSerializer):
             # 'following': profile.following
         }
         return (author)
+
+
+class BasicArticleSerializer(serializers.ModelSerializer):
+    """A basic article information serializer"""
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Articles
+        exclude = ('id',)
+
+    def get_author(self, obj):
+        return obj.author.username

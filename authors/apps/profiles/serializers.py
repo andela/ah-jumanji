@@ -36,20 +36,20 @@ class ProfileSerializer(serializers.ModelSerializer):
         """
         # For every item provided in the payload,
         # amend the profile accordingly
-        for(key, value) in prof_data.items():
+        for (key, value) in prof_data.items():
             setattr(instance.profile, key, value)
         instance.save()
 
         return instance
 
 
-class ProfileSerializer2(serializers.ModelSerializer):
+class BasicProfileSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     following = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
-        exclude = ('username',)
+        fields = ('user', 'bio', 'profile_photo', 'following')
 
     def get_user(self, obj):
         """

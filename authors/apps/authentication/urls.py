@@ -39,5 +39,4 @@ urlpatterns = [
         'users/activate/<uidb64>/<token>',
         ActivateAPIView.as_view(),
         name='activate'),
-
 ]

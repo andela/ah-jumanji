@@ -17,7 +17,7 @@ from rest_framework import exceptions, status, reverse
 # local imports
 from authors.apps.profiles.serializers import (
     ProfileSerializer, FollowingSerializer, FollowedSerializer,
-    FollowersSerializer, ProfileSerializer2)
+    FollowersSerializer, BasicProfileSerializer)
 
 from authors.apps.profiles.models import Profile, Following
 
@@ -96,7 +96,7 @@ class GetUserProfile(APIView):
         Defines the view for getting a User's profile
     """
     permission_classes = (IsAuthenticated,)
-    serializer_class = ProfileSerializer2
+    serializer_class = BasicProfileSerializer
 
     def get(self, request, *args, **kwargs):
         """fetch the user profile"""
