@@ -92,9 +92,8 @@ def init_profile(sender, instance, created, **kwargs):
     """
     if created:
         Profile.objects.create(
-            user=instance,
-            first_name=instance.username,
-            username=instance.username)
+            user=instance, username=instance.username,
+            first_name=instance.username)
 
 
 @receiver(post_save, sender=User)
