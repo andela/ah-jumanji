@@ -1,28 +1,24 @@
 import jwt
-
-from django.utils.http import urlsafe_base64_decode
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
-
+from django.core.mail import EmailMultiAlternatives
+from django.urls import reverse
+from django.utils.http import urlsafe_base64_decode
 from rest_framework import status
-from rest_framework import generics
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView, \
+    GenericAPIView, ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .models import User
 from .backends import JWTAuthentication
 from .backends import account_activation_token
-from .renderers import UserJSONRenderer
 from .confirmation import send_confirmation_email
+from .models import User
+from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer
 )
-
 
 # Instantiate base classes
 instance = User()
@@ -31,13 +27,14 @@ auth = JWTAuthentication()
 User = get_user_model()
 
 
-class RegistrationAPIView(APIView):
+class RegistrationAPIView(GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = RegistrationSerializer
 
-    def post(self, request):
+    def post(self, request, **kwargs):
+        """Register a new user"""
         user = request.data.get('user', {})
 
         # The create serializer, validate serializer, save serializer pattern
@@ -54,12 +51,13 @@ class RegistrationAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class LoginAPIView(APIView):
+class LoginAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
 
-    def post(self, request):
+    def post(self, request, **kwargs):
+        """Login a user"""
         user = request.data.get('user', {})
         # Notice here that we do not call `serializer.save()` like we did for
         # the registration endpoint. This is because we don't actually have
@@ -71,13 +69,13 @@ class LoginAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ListUsersAPIView(generics.ListAPIView):
+class ListUsersAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class UserRetrieveUpdateAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
@@ -104,11 +102,13 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ResetPasswordRequestAPIView(APIView):
+class ResetPasswordRequestAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
+    serializer_class = UserSerializer
 
-    def post(self, request):
+    def post(self, request, **kwargs):
+        """User reset password"""
         email = request.data.get('email', None)
         protocol = 'https://' if request.is_secure() else 'http://'
         current_site = get_current_site(request)
@@ -143,12 +143,13 @@ class ResetPasswordRequestAPIView(APIView):
             status=status.HTTP_200_OK)
 
 
-class ResetPasswordConfirmAPIView(RetrieveUpdateAPIView):
+class ResetPasswordConfirmAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
 
     def put(self, request, token):
+        """Change user password"""
         payload = jwt.decode(token, settings.SECRET_KEY)
         user = instance.get_user(email=payload["email"])
 
@@ -164,24 +165,21 @@ class ResetPasswordConfirmAPIView(RetrieveUpdateAPIView):
             status=status.HTTP_200_OK)
 
 
-class RefreshToken(APIView):
+class RefreshToken(CreateAPIView):
     """
     A view to refresh existing JWT tokens
     """
     pass
 
 
-class ActivateAPIView(APIView):
+class ActivateAPIView(GenericAPIView):
     """
     This view updates the user to activated if tokens are only valid
     """
     permission_classes = (AllowAny,)
 
-    def get(self, request, uidb64, token):
-        """
-        The get method retrieves the uidb64 and tokens from the link
-        to be decoded and used for confirmation
-        """
+    def get(self, request, uidb64, token, **kwargs):
+        """Activate user account"""
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)

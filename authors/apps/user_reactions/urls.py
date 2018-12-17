@@ -12,9 +12,11 @@ from authors.apps.user_reactions.views import (
 
 urlpatterns = [
     path(
-        '', UserReactionView.as_view(),
+        'articles/reactions',
+        UserReactionView.as_view(),
         name='reactions'),
     path(
-        '/<str:slug>', UserReactionOnParticularArticleView.as_view(),
+        'articles/reactions/<slug>',
+        UserReactionOnParticularArticleView.as_view(),
         name='reactions_per_article'),
 ]

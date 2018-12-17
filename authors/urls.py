@@ -14,48 +14,31 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework.schemas import get_schema_view
-from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
+from rest_framework_swagger.views import get_swagger_view
 
-from .apps.articles import urls
-
-
-schema_view = get_schema_view(
-    title='Pastebin API',
-    renderer_classes=[OpenAPIRenderer, SwaggerUIRenderer]
-)
+schema_view = get_swagger_view(title='Jumanji Authors Haven API')
 
 urlpatterns = [
     path('', schema_view),
     path(
         'admin/',
-        admin.site.urls,
-        name='admin'),
+        admin.site.urls),
     path(
         'api/',
-        include('authors.apps.authentication.urls'),
-        name='authentication'),
+        include('authors.apps.authentication.urls')),
     path(
         'api/',
-        include('authors.apps.profiles.urls'),
-        name='profiles'),
-    path(
-        'api/profile/',
-        include('authors.apps.profiles.urls'),
-        name='profile'),
-    path(
-        'api/articles/', include(urls),
-        name='all_articles'),
-    path(
-        'api/articles/',
-        include('authors.apps.comments.urls'),
-        name='comments'),
+        include('authors.apps.profiles.urls')),
     path(
         'api/',
-        include('authors.apps.profiles.urls'), name='profiles'),
+        include('authors.apps.articles.urls')),
     path(
-        'api/articles/reactions',
-        include('authors.apps.user_reactions.urls'),
-        name='user_reactions'
-    ),
+        'api/',
+        include('authors.apps.comments.urls')),
+    path(
+        'api/',
+        include('authors.apps.profiles.urls')),
+    path(
+        'api/',
+        include('authors.apps.user_reactions.urls')),
 ]

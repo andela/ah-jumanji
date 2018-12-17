@@ -96,9 +96,7 @@ class UserReactionView(generics.ListAPIView):
         return response, status_code
 
     def post(self, request):
-        """
-            POST a reaction on an article with a given slug
-        """
+        """Post a new article reaction"""
         slug = request.data.get('slug')
         # Find article
         article = find_article_helper(slug)
@@ -132,7 +130,6 @@ class UserReactionView(generics.ListAPIView):
     def get(self, request):
         """
             View the all reactions on all articles
-            GET /api/articles/reactions/
         """
 
         # Retrieve all reactions if any
@@ -159,9 +156,7 @@ class UserReactionOnParticularArticleView(generics.ListAPIView):
         seen
     """
     def get(self, request, slug):
-        """
-            GET /api/articles/reactions/<slug>
-        """
+        """Get a specific article reaction"""
         # Find article
         article = find_article_helper(slug)
 

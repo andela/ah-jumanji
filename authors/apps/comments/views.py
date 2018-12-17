@@ -1,3 +1,4 @@
+from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -13,11 +14,12 @@ from .models import Comment
 # Create your views here.
 
 
-class CommentAPIView(APIView):
+class CommentAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = CommentSerializer
 
     def post(self, request, slug):
+        """Post a new comment"""
 
         try:
             article = Articles.objects.get(slug=slug)
@@ -45,6 +47,7 @@ class CommentAPIView(APIView):
         return Response(response, status=status.HTTP_201_CREATED)
 
     def get(self, request, slug):
+        """Get all comments"""
 
         try:
             comments = Comment.objects.all()
@@ -72,11 +75,12 @@ class CommentAPIView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class CommentUpdateDeleteAPIView(APIView):
+class CommentUpdateDeleteAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = CommentSerializer
 
     def put(self, request, slug, id):
+        """Update a comment"""
         try:
             updated_comment = Comment.objects.get(id=id)
 
@@ -97,6 +101,7 @@ class CommentUpdateDeleteAPIView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
     def delete(self, request, slug, id):
+        """Delete a comment"""
         try:
             deleted_comment = Comment.objects.get(id=id)
         except Comment.DoesNotExist:

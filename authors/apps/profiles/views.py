@@ -3,23 +3,22 @@ Views for profiles app
 """
 
 import logging
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
 
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from rest_framework import exceptions, status, reverse
 from rest_framework import generics
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import exceptions, status, reverse
 
-# Create your views here.
-
+from authors.apps.profiles.models import Profile, Following
 # local imports
 from authors.apps.profiles.serializers import (
     ProfileSerializer, FollowingSerializer, FollowedSerializer,
     FollowersSerializer, BasicProfileSerializer)
 
-from authors.apps.profiles.models import Profile, Following
+# Create your views here.
 
 logger = logging.getLogger(__name__)
 
@@ -36,22 +35,22 @@ class ProfileDetails(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, username):
+        """Retrieve all user profiles"""
         user = get_object_or_404(get_user_model(), username=username)
         profile = Profile.objects.get_or_create(user=user)
         data = ProfileSerializer(profile).data
         return Response(data)
 
 
-class ProfileView(APIView):
+class ProfileView(GenericAPIView):
     """
         Class contains all the views possible for the `profiles` app
     """
     permission_classes = (IsAuthenticated,)
+    serializer_class = ProfileSerializer
 
-    def get(self, request):
-        """
-            Return the profiles of the logged in User
-        """
+    def get(self, request, **kwargs):
+        """Return the profile of the logged in user"""
         # logged in user
         user = request.user
         user_profile = Profile.objects.get(user=user)
@@ -64,10 +63,8 @@ class ProfileView(APIView):
 
         return Response(formatted_user_profile, status=status.HTTP_200_OK)
 
-    def put(self, request):
-        """
-            Update items on the `Profile` for logged in user
-        """
+    def put(self, request, **kwargs):
+        """Update the profile for a logged in user"""
         # Extract profile data to be updated from request
         profile_data = request.data.get('profile')
         # logged in user
@@ -91,7 +88,7 @@ class ProfileView(APIView):
         return Response(formatted_user_profile, status=status.HTTP_200_OK)
 
 
-class GetUserProfile(APIView):
+class GetUserProfile(GenericAPIView):
     """
         Defines the view for getting a User's profile
     """
@@ -99,7 +96,7 @@ class GetUserProfile(APIView):
     serializer_class = BasicProfileSerializer
 
     def get(self, request, *args, **kwargs):
-        """fetch the user profile"""
+        """Retrieve the user profile"""
 
         # verify user and user profile exist
         username = kwargs.get('username', {})
@@ -124,7 +121,7 @@ class GetUserProfile(APIView):
         return Response(serialized.data)
 
 
-class FollowUser(APIView):
+class FollowUser(GenericAPIView):
     """
         Defines the follower relationship
     """
@@ -166,7 +163,7 @@ class FollowUser(APIView):
             return Response(response, status=status.HTTP_200_OK)
 
     def delete(self, request, **kwargs):
-        """unfollow a user"""
+        """Unfollow a user"""
         username = kwargs['username']
         try:
             user = get_user_model().objects.get(username=username)
@@ -199,12 +196,12 @@ class FollowUser(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class ListAllFollowers(APIView):
+class ListAllFollowers(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = FollowersSerializer
 
     def get(self, request):
-        """list all users who follow one"""
+        """List all users who follow the current logged in user"""
         profile = Profile.objects.get_or_create(user=request.user)
         profile = profile[0]
         followers = profile.get_followers()
@@ -226,7 +223,7 @@ class ListAllFollowers(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class ListAllFollowed(APIView):
+class ListAllFollowed(GenericAPIView):
     """
         Lists all users who follow a user
     """
@@ -234,7 +231,7 @@ class ListAllFollowed(APIView):
     serializer_class = FollowedSerializer
 
     def get(self, request):
-        """list all users who follow one"""
+        """List all users who the logged in user follow"""
         profile = Profile.objects.get_or_create(user=request.user)
         profile = profile[0]
         followed = profile.get_followed()
