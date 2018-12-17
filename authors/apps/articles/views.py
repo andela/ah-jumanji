@@ -1,22 +1,62 @@
 from rest_framework import views, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.settings import api_settings
 
 from .serializers import ArticleSerializer
+from .models import Articles
 
 
 class ArticleView(views.APIView):
+
     permission_classes = (IsAuthenticated,)
     serializer_class = ArticleSerializer
-    """Posts and gets articles from the model"""
+    queryset = Articles.objects.all()
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
+
+    """
+    Posts and gets articles from the model
+    """
 
     def get(self, request):
-        """The get request function"""
-        serializer = self.serializer_class
-        result = serializer.get_all_objects()
-        length = len(result)
-        return Response(
-            {"articles": result, "articlesCount": length}, status.HTTP_200_OK)
+
+        # Overriding to achieve pagination
+        page = self.paginate_queryset(self.queryset)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            result = self.get_paginated_response(serializer.data)
+            return result
+
+    @property
+    def paginator(self):
+        # paginator instance associated with this view
+        if not hasattr(self, '_paginator'):
+            if self.pagination_class is None:
+                self._paginator = None
+            else:
+                self._paginator = self.pagination_class()
+        return self._paginator
+
+    def paginate_queryset(self, queryset):
+
+        # counters return of a single page of articles or None if disabled
+        if self.paginator is None:
+            return None
+        return self.paginator.paginate_queryset(
+                                                    queryset,
+                                                    self.request,
+                                                    view=self)
+
+    def get_paginated_response(self, data):
+
+        # return paginated style for given output data
+        try:
+            return self.paginator.get_paginated_response(data)
+
+        except AssertionError:
+            assert self.paginator is not None
+            return Response({'message': 'cannot return paginated data'})
+
 
     @staticmethod
     def post(request, **kwargs):

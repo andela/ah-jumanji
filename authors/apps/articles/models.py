@@ -22,3 +22,6 @@ class Articles(models.Model):
     def __str__(self):
         """ String representation of db object """
         return ' {}: {}'.format(self.id, self.slug)
+
+    class Meta:
+        ordering = ["-createdAt", "-updatedAt"]

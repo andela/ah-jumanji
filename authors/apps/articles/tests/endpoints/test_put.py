@@ -32,6 +32,14 @@ class TestGetEndpoint(APITestCase):
         response.render()
         self.assertIn(b'Update was successful', response.content)
 
+    def test_putArticle_no_token_provided(self):
+        url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})
+        response = self.client.put(url, self.data, format='json')
+        response.render()
+        self.assertIn(
+                        b'Authentication credentials were not provided.',
+                        response.content)
+
     def test_get_specific_article(self):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})

@@ -35,42 +35,73 @@ class TestGetEndpoint(APITestCase):
             author=User.objects.get(username=self.author))
         self.article.save()
 
-    def test_getArticle_status(self):
+    def test_get_all_articles(self):
+        """
+        This tests getting all articles successfully
+        """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         url = reverse('articles')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    # Test for specific article calls
+    def test_successfully_not_getting_articles_if_token_not_used(self):
+        """
+        Unauthorized error returned if no token is passed in
+        """
+        url = reverse('articles')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_getArticle_content(self):
+    def test_get_article_id(self):
+        """
+        Tests the pk of the article is true
+        """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         url = reverse('articles')
         response = self.client.get(url)
+        self.assertIn(b"1", response.content)
 
-        response.render()
-        self.assertIn(b"life_love_death", response.content)
-        self.assertIn(b"Life Love and Death", response.content)
-        self.assertIn(b"What is life?", response.content)
-        self.assertIn(b"This is the real life body.", response.content)
-        self.assertIn(b"[\"life\",\"love\",\"death\"]", response.content)
-        self.assertIn(b"4", response.content)
+    def test_articles_are_paginated(self):
+        """
+        This tests if the returned articles are paginated
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        url = reverse('articles')
+        response = self.client.get(url).render()
+        # this checks the number of articles in the database
+        self.assertIn(b"1", response.content)
+        # next is null since there is only one article posted
+        self.assertIn(b"null", response.content)
+        # previous is null since only one article has been posted
+        # the page_size holds ten articles per page
+        self.assertIn(b"null", response.content)  # previous
 
     def test_get_specific_article(self):
+        """
+        This gets a specific article
+        """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         url = reverse('articleSpecific', kwargs={'slug': 'life_love_death'})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response.render()
-        self.assertIn(b"life_love_death", response.content)
-        self.assertIn(b"Life Love and Death", response.content)
-        self.assertIn(b"What is life?", response.content)
+    def test_getting_and_checking_articles_content(self):
+        """
+        This checks if the right content of an article is returned
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        url = reverse('articles')
+        response = self.client.get(url).render()
+        # checks if the body passed during posting is the one returned
         self.assertIn(b"This is the real life body.", response.content)
-        self.assertIn(b"[\"life\",\"love\",\"death\"]", response.content)
+
+        # checks if favoritesCount returned is 4
         self.assertIn(b"4", response.content)
 
     def test_wrong_request(self):
+        """
+        Checks request for a non existing article
+        """
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         url = reverse(
             'articleSpecific', kwargs={
