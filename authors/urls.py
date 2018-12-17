@@ -50,5 +50,12 @@ urlpatterns = [
         'api/articles/',
         include('authors.apps.comments.urls'),
         name='comments'),
-    path('api/', include('authors.apps.profiles.urls'), name='profiles'),
+    path(
+        'api/',
+        include('authors.apps.profiles.urls'), name='profiles'),
+    path(
+        'api/articles/reactions',
+        include('authors.apps.user_reactions.urls'),
+        name='user_reactions'
+    ),
 ]
