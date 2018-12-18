@@ -41,4 +41,7 @@ urlpatterns = [
     path(
         'api/',
         include('authors.apps.user_reactions.urls')),
+    path(
+        'api/',
+        include('authors.apps.user_comment_reaction.urls')),
 ]
