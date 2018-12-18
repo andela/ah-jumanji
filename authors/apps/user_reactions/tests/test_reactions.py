@@ -9,6 +9,7 @@ from django.urls import reverse
 # local imports
 # from authors.apps.user_reactions.models import UserReaction
 from authors.apps.authentication.models import User
+from authors.apps.articles.models import Articles
 # Create your tests here.
 
 
@@ -35,7 +36,7 @@ class TestUserReactionModel(APITestCase):
                 "username": "username_tu",
                 "email": "user@mymail.com",
                 "password": "#Strong2-password"
-                }
+            }
         }
         # reacts
         self.another_user = {
@@ -43,7 +44,7 @@ class TestUserReactionModel(APITestCase):
                 "username": "dmithamo",
                 "email": "dmithamo@mymail.com",
                 "password": "#Strong2-password"
-                }
+            }
         }
 
         # reacts
@@ -52,7 +53,7 @@ class TestUserReactionModel(APITestCase):
                 "username": "bmithamo",
                 "email": "bmithamo@mymail.com",
                 "password": "#Strong2-password"
-                }
+            }
         }
 
         # A sample article to use in the tests
@@ -60,14 +61,12 @@ class TestUserReactionModel(APITestCase):
             "title": "Django Unchained",
             "description": "Django without chains",
             "body": "The chains were removed from the Django",
-            "author": self.user['user']['username'],
             "tagList": "tag, list"
         }
         self.article_too = {
             "title": "War is not It",
             "description": "Civil War and Stuff",
             "body": "The civil war happened and yes",
-            "author": self.another_user['user']['username'],
             "tagList": "civil, war"
         }
 
@@ -104,13 +103,14 @@ class TestUserReactionModel(APITestCase):
         # Decode response and extract user
         user = json.loads(
             register_response.content.decode('utf-8'))['user']
+
         return user
 
-    def post_an_article_helper(self, article, user):
+    def post_an_article_helper(self, article):
         """
             Helper method for posting an article
         """
-        user = self.register_user_helper(user)
+        user = self.register_user_helper(self.user)
         user_token = user['token']
 
         # Send a POST request to create an article with token
@@ -128,16 +128,23 @@ class TestUserReactionModel(APITestCase):
             Test a logged in user can like an existing article
         """
         # Create an article
-        self.post_an_article_helper(self.article, self.user)
+        self.post_an_article_helper(self.article)
 
         # register a user and send a reaction to the article
         user = self.register_user_helper(self.another_user)
         user_token = user['token']
-
         # Send request to like article with auth token
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
+
+        article_flani = Articles.objects.get(title=self.article['title'])
+
+        reaction_sample = {
+            "slug": article_flani.slug,
+            "reaction": 1
+        }
+
         response = self.client.post(
-            self.reactions_endpoint, self.reaction, format='json'
+            self.reactions_endpoint, reaction_sample, format='json'
         )
 
         # extract contents of response
@@ -158,7 +165,7 @@ class TestUserReactionModel(APITestCase):
             Test a logged in user can like an existing article
         """
         # Create an article
-        self.post_an_article_helper(self.article, self.user)
+        self.post_an_article_helper(self.article)
 
         # register a user and send a reaction to the article
         user = self.register_user_helper(self.another_user)
@@ -167,12 +174,19 @@ class TestUserReactionModel(APITestCase):
         # Send request to like article with auth token
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         # LIKE to an article
+
+        article_flani = Articles.objects.get(title=self.article['title'])
+
+        reaction_sample = {
+            "slug": article_flani.slug,
+            "reaction": 1
+        }
         self.client.post(
-            self.reactions_endpoint, self.reaction, format='json'
+            self.reactions_endpoint, reaction_sample, format='json'
         )
         # Send similar request to UNLIKE
         response = self.client.post(
-            self.reactions_endpoint, self.reaction, format='json'
+            self.reactions_endpoint, reaction_sample, format='json'
         )
 
         # extract contents of response
@@ -199,9 +213,14 @@ class TestUserReactionModel(APITestCase):
         user_token = user['token']
 
         # Send request to like article with auth token
+
+        reaction_sample = {
+            "slug": "this-is-a-slug",
+            "reaction": 1
+        }
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         response = self.client.post(
-            self.reactions_endpoint, self.reaction, format='json'
+            self.reactions_endpoint, reaction_sample, format='json'
         )
 
         # extract contents of response
@@ -216,7 +235,7 @@ class TestUserReactionModel(APITestCase):
         self.assertEqual(
             response_data["detail"],
             "Article with slug `{}` does not exist".format(
-                self.reaction["slug"]))
+                reaction_sample["slug"]))
 
     def test_user_view_all_reactions_on_all_articles(self):
         """
@@ -224,21 +243,21 @@ class TestUserReactionModel(APITestCase):
             reactions on all existing articles
         """
         # Create an article
-        self.post_an_article_helper(self.article, self.user)
-        # Create another article
-        self.post_an_article_helper(self.article_too, self.another_user)
+        self.post_an_article_helper(self.article)
 
         user = self.register_user_helper(self.third_user)
         user_token = user['token']
 
         # Send request to like article with auth token
+        article_flani = Articles.objects.get(title=self.article['title'])
+        reaction_sample = {
+            "slug": article_flani.slug,
+            "reaction": 1
+        }
+
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         self.client.post(
-            self.reactions_endpoint, self.reaction, format='json'
-        )
-        # Dislike another article
-        self.client.post(
-            self.reactions_endpoint, self.reaction_too, format='json'
+            self.reactions_endpoint, reaction_sample, format='json'
         )
 
         # Retrieve all reactions
@@ -255,13 +274,10 @@ class TestUserReactionModel(APITestCase):
 
         # Check the contents of the response
         self.assertTrue(response_data["reactions"])
-        self.assertEqual(len(response_data["reactions"]), 2)
+        self.assertEqual(len(response_data["reactions"]), 1)
         self.assertTrue(
             response_data["reactions"][0]["reaction"],
-            self.reaction["reaction"])
-        self.assertTrue(
-            response_data["reactions"][1]["reaction"],
-            self.reaction_too["reaction"])
+            reaction_sample["reaction"])
 
     def test_unlogged_in_user_cannot_react_to_article(self):
         """

@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
-from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 from authors.apps.articles.models import Articles
 
 
@@ -45,7 +45,7 @@ class UpdateModelTest(APITestCase):
             tagList=self.tagList,
             favorited=self.favorited,
             favoritesCount=self.favoritesCount,
-            author=User.objects.get(
+            author=Profile.objects.get(
                 username=self.author))
         self.article.save()
 

@@ -38,8 +38,7 @@ class TestBase(APITestCase):
             "title": "Test Post",
             "description": "This is a posting test",
             "body": "The test was successful",
-            "tagList": "live again",
-            "author": "author"
+            "tagList": "live again"
         }
 
         # register author and rater and activate them
@@ -73,7 +72,7 @@ class TestBase(APITestCase):
         self.post_article = self.client.post(
             reverse('articles'), data=self.article, format='json')
         article = self.post_article.content
-        self.slug = json.loads(article.decode('utf-8'))['article'][0]['slug']
+        self.slug = json.loads(article.decode('utf-8'))['article']['slug']
 
         # post a rating and get ID
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.rater_token)

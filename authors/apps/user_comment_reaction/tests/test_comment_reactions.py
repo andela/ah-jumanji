@@ -6,9 +6,12 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
+from django.utils.text import slugify
+
 # local imports
 from authors.apps.authentication.models import User
 from authors.apps.articles.models import Articles
+from authors.apps.profiles.models import Profile
 from authors.apps.comments.models import Comment
 # Create your tests here.
 
@@ -36,7 +39,7 @@ class TestUserReactionOnCommentModel(APITestCase):
                 "username": "username_tu",
                 "email": "user@mymail.com",
                 "password": "#Strong2-password"
-                }
+            }
         }
         # reacts to comment
         self.another_user = {
@@ -44,7 +47,7 @@ class TestUserReactionOnCommentModel(APITestCase):
                 "username": "dmithamo",
                 "email": "dmithamo@mymail.com",
                 "password": "#Strong2-password"
-                }
+            }
         }
 
         # reacts to comments
@@ -53,7 +56,7 @@ class TestUserReactionOnCommentModel(APITestCase):
                 "username": "lkhalegi",
                 "email": "lkhalegi@me.com",
                 "password": "#Strong2-password"
-                }
+            }
         }
 
         # A sample article to use in the tests
@@ -61,14 +64,12 @@ class TestUserReactionOnCommentModel(APITestCase):
             "title": "Django Unchained",
             "description": "Django without chains",
             "body": "The chains were removed from the Django",
-            "author": self.user['user']['username'],
             "tagList": "tag, list"
         }
         self.article_two = {
             "title": "War is not It",
             "description": "Civil War and Stuff",
             "body": "The civil war happened and yes",
-            "author": self.another_user['user']['username'],
             "tagList": "civil, war"
         }
 
@@ -106,13 +107,15 @@ class TestUserReactionOnCommentModel(APITestCase):
         # Insert an article into the db manually
         # Register user first
         self.register_user_helper(self.user)
+        profile = Profile.objects.get(username=self.user['user']['username'])
         user = User.objects.get(username=self.user['user']['username'])
 
         # Insert an article into the db
         Articles.objects.create(
+            slug=slugify(article['title']),
             title=article['title'],
             body=article['body'],
-            author=user
+            author=profile
         )
         # Insert a comment into the db
         # Needs an article

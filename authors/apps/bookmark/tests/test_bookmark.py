@@ -8,6 +8,8 @@ from rest_framework.reverse import reverse
 
 # local imports
 from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
+from authors.apps.articles.models import Articles
 
 
 class TestBookmarkModel(APITestCase):
@@ -31,7 +33,7 @@ class TestBookmarkModel(APITestCase):
                 "username": "EmmanuelChayu",
                 "email": "emmanuelchayu@andela.com",
                 "password": "#1Emmcodes"
-                }
+            }
         }
 
         self.another_user = {
@@ -39,7 +41,7 @@ class TestBookmarkModel(APITestCase):
                 "username": "EmmanuelBeja",
                 "email": "beja.emmanuel@gmail.com",
                 "password": "#1Emmcodes"
-                }
+            }
         }
 
         self.third_user = {
@@ -47,7 +49,7 @@ class TestBookmarkModel(APITestCase):
                 "username": "Emmbeja",
                 "email": "emmcodes@gmail.com",
                 "password": "#1Emmcodes"
-                }
+            }
         }
 
         # A sample article to use in the tests
@@ -55,14 +57,12 @@ class TestBookmarkModel(APITestCase):
             "title": "Django Unchained",
             "description": "Django without chains",
             "body": "The chains were removed from the Django",
-            "author": self.user['user']['username'],
             "tagList": "tag, list"
         }
         self.article_too = {
             "title": "War is not It",
             "description": "Civil War and Stuff",
             "body": "The civil war happened and yes",
-            "author": self.another_user['user']['username'],
             "tagList": "civil, war"
         }
 
@@ -76,6 +76,10 @@ class TestBookmarkModel(APITestCase):
             "slug": "war-is-not-it",
             "bookmark": "False"
         }
+
+    def getUserProfile(self, name):
+        profile = Profile.objects.get(username=name)
+        return profile
 
     def register_user_helper(self, user_data):
         """
@@ -111,6 +115,7 @@ class TestBookmarkModel(APITestCase):
         post_article_response = self.client.post(
             self.post_article_endpoint, article, format='json'
         )
+        print("\n\n\n\n ====================={}".format(post_article_response))
         return post_article_response
 
     def test_user_can_bookmark_an_article(self):
@@ -120,6 +125,10 @@ class TestBookmarkModel(APITestCase):
         # Create an article
         self.post_an_article_helper(self.article, self.user)
 
+        bookmark = {
+            "slug": Articles.objects.get(title="Django Unchained").slug,
+            "bookmark": "True"
+        }
         # register a user and send a bookmark to the article
         user = self.register_user_helper(self.another_user)
         user_token = user['token']
@@ -127,7 +136,7 @@ class TestBookmarkModel(APITestCase):
         # Send request to like article with auth token
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         response = self.client.post(
-            self.bookmarks_endpoint, self.bookmark, format='json'
+            self.bookmarks_endpoint, bookmark, format='json'
         )
 
         # extract contents of response
@@ -151,6 +160,10 @@ class TestBookmarkModel(APITestCase):
         # Create an article
         self.post_an_article_helper(self.article, self.user)
 
+        bookmark = {
+            "slug": Articles.objects.get(title="Django Unchained").slug,
+            "bookmark": "True"
+        }
         # register a user and send a bookmark to the article
         user = self.register_user_helper(self.another_user)
         user_token = user['token']
@@ -159,11 +172,11 @@ class TestBookmarkModel(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         # LIKE to an article
         self.client.post(
-            self.bookmarks_endpoint, self.bookmark, format='json'
+            self.bookmarks_endpoint, bookmark, format='json'
         )
         # Send similar request to Bookmark
         response = self.client.post(
-            self.bookmarks_endpoint, self.bookmark, format='json'
+            self.bookmarks_endpoint, bookmark, format='json'
         )
 
         # extract contents of response
@@ -216,20 +229,29 @@ class TestBookmarkModel(APITestCase):
         """
         # Create an article
         self.post_an_article_helper(self.article, self.user)
+
+        bookmark = {
+            "slug": Articles.objects.get(title="Django Unchained").slug,
+            "bookmark": "True"
+        }
         # Create another article
         self.post_an_article_helper(self.article_too, self.another_user)
 
+        bookmark_too = {
+            "slug": Articles.objects.get(title="War is not It").slug,
+            "bookmark": "False"
+        }
         user = self.register_user_helper(self.third_user)
         user_token = user['token']
 
         # Send request to like article with auth token
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         self.client.post(
-            self.bookmarks_endpoint, self.bookmark, format='json'
+            self.bookmarks_endpoint, bookmark, format='json'
         )
         # Dislike another article
         self.client.post(
-            self.bookmarks_endpoint, self.bookmark_too, format='json'
+            self.bookmarks_endpoint, bookmark_too, format='json'
         )
         # import pdb; pdb.set_trace()
         # Retrieve all BOOKMARKS
@@ -261,6 +283,11 @@ class TestBookmarkModel(APITestCase):
         """
         # Create an article
         self.post_an_article_helper(self.article, self.user)
+
+        bookmark = {
+            "slug": Articles.objects.get(title="Django Unchained").slug,
+            "bookmark": "True"
+        }
         # Create another article
         self.post_an_article_helper(self.article_too, self.another_user)
 
@@ -270,10 +297,12 @@ class TestBookmarkModel(APITestCase):
         # Send request to favourite article with auth token
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         self.client.post(
-            self.bookmarks_endpoint, self.bookmark, format='json'
+            self.bookmarks_endpoint, bookmark, format='json'
         )
 
-        url = reverse('article_bookmarks', kwargs={'slug': 'war-is-not-it'})
+        url = reverse('article_bookmarks',
+                      kwargs={'slug': Articles.objects.
+                              get(title="War is not It").slug})
         response = self.client.get(
             url,
             HTTP_AUTHORIZATION='Token ' + user_token

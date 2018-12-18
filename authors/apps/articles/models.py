@@ -16,22 +16,17 @@ logger = logging.getLogger(__name__)
 
 class Articles(models.Model):
     """ Model for all articles """
-    slug = models.SlugField(max_length=250, default='non')
-    title = models.CharField(max_length=50, default='non')
-    description = models.CharField(max_length=250, default='non')
-    body = models.CharField(max_length=550, default='non')
-    tagList = models.CharField(max_length=50,
-                               default='non')  # ["dragons", "training"],
+    slug = models.SlugField(unique=True, max_length=250)
+    title = models.CharField(max_length=250)
+    description = models.CharField(max_length=350)
+    body = models.TextField()
+    tagList = models.CharField(max_length=200)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
     favorited = models.BooleanField(default=False)
     favoritesCount = models.IntegerField(default=0)
     readtime = models.IntegerField(default=0)
-    author = models.ForeignKey(User, default=0, on_delete=models.CASCADE)
-
-    def __str__(self):
-        """ String representation of db object """
-        return ' {}: {}'.format(self.id, self.slug)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["-createdAt", "-updatedAt"]
@@ -42,7 +37,7 @@ class Articles(models.Model):
 def articles_notifications_handler(sender, **kwargs):
     # create a notification
     article = kwargs['instance']
-    author = article.author
+    author = article.author.user
     profile = Profile.objects.get_or_create(user=author)
     profile = profile[0]
 

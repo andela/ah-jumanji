@@ -6,7 +6,7 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 
 from authors.apps.articles.models import Articles
-from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 
 
 class TestGetEndpoint(APITestCase):
@@ -32,7 +32,7 @@ class TestGetEndpoint(APITestCase):
             tagList=self.tagList,
             favorited=self.favorited,
             favoritesCount=self.favoritesCount,
-            author=User.objects.get(username=self.author))
+            author=Profile.objects.get(username=self.author))
         self.article.save()
 
     def test_get_all_articles(self):
