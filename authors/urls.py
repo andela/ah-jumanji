@@ -50,4 +50,7 @@ urlpatterns = [
     path(
         'api/articles/bookmarks/',
         include('authors.apps.bookmark.urls')),
+    path(
+        'api/',
+        include('authors.apps.ratings.urls')),
 ]
