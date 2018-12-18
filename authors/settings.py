@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'authors.apps.comments',
     'authors.apps.search',
     'authors.apps.user_reactions',
+    'authors.apps.user_comment_reaction',
 ]
 
 MIDDLEWARE = [
