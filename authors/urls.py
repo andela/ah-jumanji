@@ -47,4 +47,7 @@ urlpatterns = [
     path(
         'api/articles/favourites/',
         include('authors.apps.favourite.urls')),
+    path(
+        'api/articles/bookmarks/',
+        include('authors.apps.bookmark.urls')),
 ]
