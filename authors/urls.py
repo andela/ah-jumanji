@@ -44,4 +44,7 @@ urlpatterns = [
     path(
         'api/',
         include('authors.apps.user_comment_reaction.urls')),
+    path(
+        'api/articles/favourites/',
+        include('authors.apps.favourite.urls')),
 ]
