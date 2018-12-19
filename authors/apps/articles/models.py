@@ -25,6 +25,7 @@ class Articles(models.Model):
     favoritesCount = models.IntegerField(default=0)
     readtime = models.IntegerField(default=0)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    read_count = models.IntegerField(default=0)
 
     class Meta:
         ordering = ["-createdAt", "-updatedAt"]
@@ -62,3 +63,11 @@ def articles_notifications_handler(sender, **kwargs):
                              message=message,
                              subject=subject
                              )
+
+
+class ArticlesRead(models.Model):
+    """
+    model for articles read
+    """
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    slug = models.TextField()
