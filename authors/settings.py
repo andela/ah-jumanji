@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django_filters',
     'haystack',
     'drf_haystack',
+    'django_social_share',
 
     # External apps
     'authors.apps.authentication',
@@ -70,6 +71,7 @@ INSTALLED_APPS = [
     'authors.apps.favourite',
     'authors.apps.bookmark',
     'authors.apps.ratings',
+    'authors.apps.share_article',
 ]
 
 MIDDLEWARE = [
