@@ -395,7 +395,7 @@ No additional parameters required
 `GET /api/tags`
 
 ### Search & Filter
-The application offers an endpoint for filtering and searching for article 
+The application offers an endpoint for filtering and searching for article
 using different criteria as follows.
 ##### Filter
 `GET /api/articles/q/filter/< ?param=value&param2=value >`
@@ -465,6 +465,9 @@ all the above parameters take the following additional options as
  touch .env
  echo "DATABASE_URL=postgres://username:password@host/db_name" >> .env
  echo "DEBUG=on" >> .env
- python manage.py migrate 
- python manage.py runserver 
+ python manage.py migrate
+ python manage.py createcachetable
+ python manage.py qcluster
+ python manage.py qmonitor
+ python manage.py runserver
 ```

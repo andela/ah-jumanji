@@ -1,13 +1,19 @@
 # Create your models here.
+import logging
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Local imports
+from rest_framework.reverse import reverse
+
+from authors.apps.notifier.utils import Notifier
 from ..authentication.models import User
 
 # Create your models here.
+logger = logging.getLogger(__name__)
 
 
 class Profile(models.Model):
@@ -125,3 +131,38 @@ class Following(models.Model):
         auto_now=True,
         help_text="This field is updated any time this record is updated"
     )
+
+    def __str__(self):
+        message = """%s is now following %s""" % (
+            self.follower.username,
+            self.followed.username
+        )
+        return message
+
+
+@receiver(post_save, sender=Following)
+def save_following(sender, **kwargs):
+    following = kwargs['instance']
+    logger.debug("New follower relationship made: %s" % following)
+
+    user = get_user_model()
+
+    subject = "New Follower Notification"
+    reverse_url = reverse('mailing-list-status')
+
+    message = """
+    You have a  new follower @%s .
+    You are seeing this email because you are subscribed to /n
+    receive email notifications.To unsubscribe from this emails
+    login and unsubscribe by following %s
+    """ % (following.follower.username, reverse_url)
+
+    Notifier.notify_multiple(actor=following.follower,
+                             recipients=user.objects.filter(
+                                 pk=following.followed.pk
+                             ),
+                             action_object=following,
+                             verb="is now following you",
+                             message=message,
+                             subject=subject
+                             )

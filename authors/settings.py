@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'django_filters',
     'haystack',
     'drf_haystack',
+    'notifications',
+    'django_q',
     'django_social_share',
 
     # External apps
@@ -69,6 +71,7 @@ INSTALLED_APPS = [
     'authors.apps.user_reactions',
     'authors.apps.user_comment_reaction',
     'authors.apps.favourite',
+    'authors.apps.notifier',
     'authors.apps.bookmark',
     'authors.apps.ratings',
     'authors.apps.share_article',
@@ -94,7 +97,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 TEMPLATES = [
     {
@@ -186,7 +189,6 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
 
-
     # Priority list of parsers for swagger document
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
@@ -207,8 +209,6 @@ SWAGGER_SETTINGS = {
         }
     },
 }
-
-LOG_LEVEL = 'DEBUG'
 logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
@@ -227,12 +227,12 @@ logging.config.dictConfig({
     },
     'loggers': {
         '': {
-            'level': 'WARNING',
+            'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False
         },
         'authors': {
-            'level': LOG_LEVEL,
+            'level': 'DEBUG',
             'handlers': ['console'],
             # required to avoid double logging with root logger
             'propagate': False,
@@ -267,3 +267,29 @@ HAYSTACK_SEARCH_RESULTS_PER_PAGE = 10
 # This signal processor enforces the real time of the index as the database
 # is updated
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+# notifier settings
+DJANGO_NOTIFICATIONS_CONFIG = {
+    'USE_JSONFIELD': True,
+    'SOFT_DELETE': True
+}
+# django background tasks configuration
+
+# database cache configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
+# configure the backend message broker with DjangoORM as the default message
+# broker
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 4,
+    'timeout': 90,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default'
+}
