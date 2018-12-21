@@ -55,5 +55,8 @@ urlpatterns = [
         include('authors.apps.ratings.urls')),
     path(
         'api/',
+        include('authors.apps.notifier.urls')),
+    path(
+        'api/',
         include('authors.apps.share_article.urls'))
 ]

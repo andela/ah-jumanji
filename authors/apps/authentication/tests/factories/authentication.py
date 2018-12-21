@@ -4,6 +4,9 @@ from django.utils.text import slugify
 from factory import fuzzy
 
 from authors.apps.articles.models import Articles
+from authors.apps.comments.models import Comment
+from authors.apps.favourite.models import Favourite
+from authors.apps.notifier.models import MailingList
 from authors.apps.profiles.models import Profile, Following
 
 
@@ -32,7 +35,7 @@ class ProfileFactory(factory.DjangoModelFactory):
         model = Profile
         django_get_or_create = ('user',)
 
-    user = factory.SubFactory(UserFactory)
+    user = factory.SubFactory(UserFactory2)
 
 
 class FollowerFactory(factory.DjangoModelFactory):
@@ -57,3 +60,40 @@ class ArticlesFactory(factory.DjangoModelFactory):
     tagList = fuzzy.FuzzyChoice(['music', 'tech', 'lifestyle', 'money'])
     slug = slugify(title)
     author = factory.SubFactory(UserFactory2)
+
+
+class FavouritesFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Favourite
+        django_get_or_create = ('user', 'article',)
+
+    user = factory.SubFactory(ProfileFactory)
+    article = factory.SubFactory(ArticlesFactory)
+    favourite = factory.Faker(
+        'random_element',
+        elements=[x[0] for x in Favourite.FAVOURITE_CHOICES]
+    )
+
+
+class CommentFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Comment
+        django_get_or_create = ('commenter', 'article')
+
+    commenter = factory.SubFactory(ProfileFactory)
+    article = factory.SubFactory(ArticlesFactory)
+    body = factory.fuzzy.FuzzyText(length=50, prefix="comment")
+
+
+class MailingListFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = MailingList
+        django_get_or_create = ('user',)
+
+    user = factory.SubFactory(UserFactory2)
+    email_notifications = factory.Faker(
+        'random_element',
+        elements=[x for x in [True, False]])
+    push_notifications = factory.Faker(
+        'random_element',
+        elements=[x for x in [True, False]])
