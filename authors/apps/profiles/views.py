@@ -31,17 +31,6 @@ class ProfilesList(generics.ListAPIView):
     serializer_class = ProfileSerializer
 
 
-class ProfileDetails(generics.ListAPIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request, username):
-        """Retrieve all user profiles"""
-        user = get_object_or_404(get_user_model(), username=username)
-        profile = Profile.objects.get_or_create(user=user)
-        data = ProfileSerializer(profile).data
-        return Response(data)
-
-
 class ProfileView(GenericAPIView):
     """
         Class contains all the views possible for the `profiles` app

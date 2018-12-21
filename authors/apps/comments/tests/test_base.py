@@ -30,8 +30,7 @@ class TestBase(APITestCase):
             "title": "Test Post",
             "description": "This is a posting test",
             "body": "The test was successful",
-            "tagList": "live again",
-            "author": "test_user"
+            "tagList": "live again"
         }
 
         # registers and activate them
@@ -52,7 +51,7 @@ class TestBase(APITestCase):
         self.post_article = self.client.post(
             reverse('articles'), data=self.article, format='json')
         article = self.post_article.content
-        self.slug = json.loads(article.decode('utf-8'))['article'][0]['slug']
+        self.slug = json.loads(article.decode('utf-8'))['article']['slug']
 
         # post a comment and get id for updating and deleting
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)

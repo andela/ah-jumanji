@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
 from authors.apps.articles.models import Articles
-from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 
 
 class TestShareEndpoint(APITestCase):
@@ -16,12 +16,10 @@ class TestShareEndpoint(APITestCase):
         self.token = self.get_user_token()
 
         self.data = {
-            "slug": "posting_test",
             "title": "Posting Test",
             "description": "this is a posting test",
             "body": "The test was successful",
-            "tagList": "live again",
-            "author": "TestAuthor"
+            "tagList": "live again"
         }
         self.all_setup()
 
@@ -30,10 +28,10 @@ class TestShareEndpoint(APITestCase):
         url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})
         self.client.post(url, self.data, format='json')
         link_url = reverse(
-                            'share_article',
-                            kwargs={
-                                    'slug': 'life-love-death',
-                                    'provider': 'facebook'})
+            'share_article',
+            kwargs={
+                'slug': 'life-love-death',
+                'provider': 'facebook'})
         response = self.client.get(link_url, format='json')
         self.assertEqual(response.data['provider'], 'facebook')
 
@@ -42,10 +40,10 @@ class TestShareEndpoint(APITestCase):
         url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})
         self.client.post(url, self.data, format='json')
         link_url = reverse(
-                            'share_article',
-                            kwargs={
-                                    'slug': 'life-love-death',
-                                    'provider': 'twitter'})
+            'share_article',
+            kwargs={
+                'slug': 'life-love-death',
+                'provider': 'twitter'})
         response = self.client.get(link_url, format='json')
         self.assertEqual(response.data['provider'], 'twitter')
 
@@ -54,10 +52,10 @@ class TestShareEndpoint(APITestCase):
         url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})
         self.client.post(url, self.data, format='json')
         link_url = reverse(
-                            'share_article',
-                            kwargs={
-                                    'slug': 'life-love-death',
-                                    'provider': 'email'})
+            'share_article',
+            kwargs={
+                'slug': 'life-love-death',
+                'provider': 'email'})
         response = self.client.get(link_url, format='json')
         self.assertEqual(response.data['provider'], 'email')
 
@@ -66,10 +64,10 @@ class TestShareEndpoint(APITestCase):
         url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})
         self.client.post(url, self.data, format='json')
         link_url = reverse(
-                            'share_article',
-                            kwargs={
-                                    'slug': 'life-love',
-                                    'provider': 'email'})
+            'share_article',
+            kwargs={
+                'slug': 'life-love',
+                'provider': 'email'})
         response = self.client.get(link_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data['message'], 'Article does not exist')
@@ -80,10 +78,10 @@ class TestShareEndpoint(APITestCase):
         url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})
         self.client.post(url, self.data, format='json')
         link_url = reverse(
-                            'share_article',
-                            kwargs={
-                                    'slug': 'life-love-death',
-                                    'provider': 'reddit'})
+            'share_article',
+            kwargs={
+                'slug': 'life-love-death',
+                'provider': 'reddit'})
         response = self.client.get(link_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['error'], 'provider link is invalid')
@@ -107,7 +105,7 @@ class TestShareEndpoint(APITestCase):
             tagList=self.tagList,
             favorited=self.favorited,
             favoritesCount=self.favoritesCount,
-            author=User.objects.get(username=self.author))
+            author=Profile.objects.get(username=self.author))
 
         self.article.save()
 

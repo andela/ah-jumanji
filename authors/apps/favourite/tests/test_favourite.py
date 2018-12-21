@@ -8,6 +8,7 @@ from rest_framework.reverse import reverse
 
 # local imports
 from authors.apps.authentication.models import User
+from authors.apps.articles.models import Articles
 
 
 class TestFavouriteModel(APITestCase):
@@ -31,7 +32,7 @@ class TestFavouriteModel(APITestCase):
                 "username": "EmmanuelChayu",
                 "email": "emmanuelchayu@andela.com",
                 "password": "#1Emmcodes"
-                }
+            }
         }
 
         self.another_user = {
@@ -39,7 +40,7 @@ class TestFavouriteModel(APITestCase):
                 "username": "EmmanuelBeja",
                 "email": "beja.emmanuel@gmail.com",
                 "password": "#1Emmcodes"
-                }
+            }
         }
 
         self.third_user = {
@@ -47,7 +48,7 @@ class TestFavouriteModel(APITestCase):
                 "username": "Emmbeja",
                 "email": "emmcodes@gmail.com",
                 "password": "#1Emmcodes"
-                }
+            }
         }
 
         # A sample article to use in the tests
@@ -55,14 +56,12 @@ class TestFavouriteModel(APITestCase):
             "title": "Django Unchained",
             "description": "Django without chains",
             "body": "The chains were removed from the Django",
-            "author": self.user['user']['username'],
             "tagList": "tag, list"
         }
         self.article_too = {
             "title": "War is not It",
             "description": "Civil War and Stuff",
             "body": "The civil war happened and yes",
-            "author": self.another_user['user']['username'],
             "tagList": "civil, war"
         }
 
@@ -124,7 +123,10 @@ class TestFavouriteModel(APITestCase):
         """
         # Create an article
         self.post_an_article_helper(self.article, self.user)
-
+        favourite = {
+            "slug": Articles.objects.get(title="Django Unchained").slug,
+            "favourite": 1
+        }
         # register a user and send a favourite to the article
         user = self.register_user_helper(self.another_user)
         user_token = user['token']
@@ -132,7 +134,7 @@ class TestFavouriteModel(APITestCase):
         # Send request to favourite article with auth token
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         response = self.client.post(
-            self.favourites_endpoint, self.favourite, format='json'
+            self.favourites_endpoint, favourite, format='json'
         )
 
         # extract contents of response
@@ -156,6 +158,10 @@ class TestFavouriteModel(APITestCase):
         # Create an article
         self.post_an_article_helper(self.article, self.user)
 
+        favourite = {
+            "slug": Articles.objects.get(title="Django Unchained").slug,
+            "favourite": 1
+        }
         # register a user and send a favourite to the article
         user = self.register_user_helper(self.another_user)
         user_token = user['token']
@@ -164,11 +170,11 @@ class TestFavouriteModel(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         # Favourite to an article
         self.client.post(
-            self.favourites_endpoint, self.favourite, format='json'
+            self.favourites_endpoint, favourite, format='json'
         )
         # Send similar request to Unfavourite
         response = self.client.post(
-            self.favourites_endpoint, self.favourite, format='json'
+            self.favourites_endpoint, favourite, format='json'
         )
 
         # extract contents of response
@@ -221,20 +227,29 @@ class TestFavouriteModel(APITestCase):
         """
         # Create an article
         self.post_an_article_helper(self.article, self.user)
+
+        favourite = {
+            "slug": Articles.objects.get(title="Django Unchained").slug,
+            "favourite": 1
+        }
         # Create another article
         self.post_an_article_helper(self.article_too, self.another_user)
 
+        favourite_too = {
+            "slug": Articles.objects.get(title="War is not It").slug,
+            "favourite": 1
+        }
         user = self.register_user_helper(self.third_user)
         user_token = user['token']
 
         # Send request to favourite article with auth token
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         self.client.post(
-            self.favourites_endpoint, self.favourite, format='json'
+            self.favourites_endpoint, favourite, format='json'
         )
         # Unfavourite another article
         self.client.post(
-            self.favourites_endpoint, self.favourite_too, format='json'
+            self.favourites_endpoint, favourite_too, format='json'
         )
         # Retrieve all FAVOURITES
         response = self.client.get(
@@ -253,10 +268,10 @@ class TestFavouriteModel(APITestCase):
         self.assertEqual(len(response_data["favourites"]), 2)
         self.assertTrue(
             response_data["favourites"][0]["favourite"],
-            self.favourite["favourite"])
+            favourite["favourite"])
         self.assertTrue(
             response_data["favourites"][1]["favourite"],
-            self.favourite_too["favourite"])
+            favourite_too["favourite"])
 
     def test_user_view_favourites_on_specific_articles(self):
         """
@@ -265,6 +280,11 @@ class TestFavouriteModel(APITestCase):
         """
         # Create an article
         self.post_an_article_helper(self.article, self.user)
+
+        favourite = {
+            "slug": Articles.objects.get(title="Django Unchained").slug,
+            "favourite": 1
+        }
         # Create another article
         self.post_an_article_helper(self.article_too, self.another_user)
 
@@ -274,10 +294,13 @@ class TestFavouriteModel(APITestCase):
         # Send request to favourite article with auth token
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + user_token)
         self.client.post(
-            self.favourites_endpoint, self.favourite, format='json'
+            self.favourites_endpoint, favourite, format='json'
         )
 
-        url = reverse('article_favourites', kwargs={'slug': 'war-is-not-it'})
+        url = reverse('article_favourites',
+                      kwargs={'slug':
+                              Articles.objects.get(
+                                  title="War is not It").slug})
         response = self.client.get(
             url,
             HTTP_AUTHORIZATION='Token ' + user_token

@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
 from authors.apps.articles.models import Articles
-from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 
 
 class TestGetEndpoint(APITestCase):
@@ -20,8 +20,7 @@ class TestGetEndpoint(APITestCase):
             "title": "Posting Test",
             "description": "this is a posting test",
             "body": "The test was successful",
-            "tagList": "live again",
-            "author": "TestAuthor"
+            "tagList": "live again"
         }
         self.all_setup()
 
@@ -30,7 +29,7 @@ class TestGetEndpoint(APITestCase):
         url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})
         response = self.client.put(url, self.data, format='json')
         response.render()
-        self.assertIn(b'Update was successful', response.content)
+        self.assertIn(b'Update successful', response.content)
 
     def test_putArticle_no_token_provided(self):
         url = reverse('articleSpecific', kwargs={'slug': 'life-love-death'})
@@ -51,7 +50,7 @@ class TestGetEndpoint(APITestCase):
         self.assertIn(b"Life Love and Death", response.content)
         self.assertIn(b"What is life?", response.content)
         self.assertIn(b"This is the real life body.", response.content)
-        self.assertIn(b"[\"life\",\"love\",\"death\"]", response.content)
+        self.assertIn(b"life,love,death", response.content)
         self.assertIn(b"4", response.content)
 
     def all_setup(self):
@@ -73,7 +72,7 @@ class TestGetEndpoint(APITestCase):
             tagList=self.tagList,
             favorited=self.favorited,
             favoritesCount=self.favoritesCount,
-            author=User.objects.get(username=self.author))
+            author=Profile.objects.get(username=self.author))
 
         self.article.save()
 

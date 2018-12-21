@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
 from authors.apps.articles.models import Articles
-from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 
 
 class TestGetEndpoint(APITestCase):
@@ -31,7 +31,7 @@ class TestGetEndpoint(APITestCase):
             tagList=self.tagList,
             favorited=True,
             favoritesCount=self.favoritesCount,
-            author=User.objects.get(username=self.author))
+            author=Profile.objects.get(username=self.author))
         self.article.save()
 
     def test_delArticle_status(self):
@@ -40,7 +40,7 @@ class TestGetEndpoint(APITestCase):
         response = self.client.delete(url)
         response.render()
         self.assertIn(
-            b'Article title: Life Love and Death deleted successfully',
+            b'Article life-love-death deleted successfully',
             response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -49,7 +49,7 @@ class TestGetEndpoint(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         response = self.client.delete(url)
         response.render()
-        self.assertIn(b'Article does not exist', response.content)
+        self.assertIn(b'Could not find that article', response.content)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def get_user_token(self):

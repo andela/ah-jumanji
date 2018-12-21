@@ -42,6 +42,22 @@ class JWTAuthentication(TokenAuthentication):
         logger.debug("is_refresh_token : %s : %s" % (is_refresh_token, token))
         return token
 
+    @staticmethod
+    def generate_social_token(username, is_refresh_token=False):
+        """
+        generate a social token
+        """
+        secret = settings.SECRET_KEY
+        token = jwt.encode({
+            'username': username,
+            'iat': datetime.datetime.utcnow(),
+            'nbf': datetime.datetime.utcnow() + datetime.timedelta(minutes=-5),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=5)
+        }, secret)
+        # decode the byte type token to
+        token = token.decode('utf-8')
+        return token
+
     def authenticate_credentials(self, key):
         try:
             # decode the payload and get the user

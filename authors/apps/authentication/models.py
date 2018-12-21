@@ -54,7 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # themselves when logging in. Since we need an email address for contacting
     # the user anyways, we will also use the email for logging in because it is
     # the most common form of login credential at the time of writing.
-    email = models.EmailField(db_index=True, unique=True)
+    email = models.EmailField(db_index=True, unique=True, default=None)
 
     # When a user no longer wishes to use our platform, they may try to delete
     # there account. That's a problem for us because the data we collect is
