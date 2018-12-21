@@ -107,8 +107,7 @@ class TestGetEndpoint(APITestCase):
             'articleSpecific', kwargs={
                 'slug': 'life_love_death_live'})
         response = self.client.get(url)
-        self.assertNotEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         response.render()
         self.assertIn(b"Article does not exist", response.content)

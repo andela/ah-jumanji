@@ -53,4 +53,7 @@ urlpatterns = [
     path(
         'api/',
         include('authors.apps.ratings.urls')),
+    path(
+        'api/',
+        include('authors.apps.share_article.urls'))
 ]

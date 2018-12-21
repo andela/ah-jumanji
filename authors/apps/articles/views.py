@@ -57,7 +57,6 @@ class ArticleView(GenericAPIView):
             assert self.paginator is not None
             return Response({'message': 'cannot return paginated data'})
 
-
     @staticmethod
     def post(request, **kwargs):
         """Create a new article"""
@@ -86,7 +85,7 @@ class ArticleSpecificFunctions(GenericAPIView):
         except Exception as error:
             print('Received error is : {}'.format(error))
             return Response({"message": "Article does not exist"},
-                            status.HTTP_400_BAD_REQUEST)
+                            status.HTTP_404_NOT_FOUND)
 
     @staticmethod
     def put(request, slug):
