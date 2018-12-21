@@ -24,8 +24,6 @@ class ArticleDetailsSerializer(serializers.ModelSerializer):
             "tagList",
             "createdAt",
             "updatedAt",
-            "favorited",
-            "favoritesCount",
             'readtime'
         )
 

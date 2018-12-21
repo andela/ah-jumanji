@@ -20,7 +20,7 @@ class TestNotifications:
         response = test_auth_client.get(reverse('notifications'))
         assert response.status_code == status.HTTP_200_OK
         assert response.data[
-                   'message'] == "You have no notifications to display"
+            'message'] == "You have no notifications to display"
 
     def test_get_unread_notifications_with_results(self, test_auth_client,
                                                    test_user, test_user2):
@@ -179,7 +179,7 @@ class TestNotifications:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data[
-                   'message'] == "You have no notifications to display"
+            'message'] == "You have no notifications to display"
 
     def test_get_all_marked_as_read(self, test_auth_client, test_user,
                                     test_user2):

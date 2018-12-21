@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 # local imports
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from rest_framework.reverse import reverse
 
@@ -84,3 +84,33 @@ def fovourites_notifications_handler(sender, created, **kwargs):
             message=Message,
             subject=subject
         )
+
+        """Update favourite status"""
+        configure_favourites(instance.article, 'created')
+
+
+@receiver(post_delete, sender=Favourite)
+def delete_favourite_handler(sender, **kwargs):
+    """Triggered once a favourite has been deleted"""
+    instance = kwargs['instance']
+
+    configure_favourites(instance.article, 'deleted')
+
+
+def configure_favourites(article, action):
+    favourites_count = Favourite.objects.filter(article=article,
+                                                favourite=1).count()
+
+    logger.debug("*-" * 20)
+    logger.debug(favourites_count)
+
+    status = True
+    if(favourites_count == 0):
+        status = False
+
+    logger.debug(status)
+
+    article = Articles.objects.get(slug=article.slug)
+    article.favorited = status
+    article.favoritesCount = favourites_count
+    article.save()

@@ -33,8 +33,6 @@ class GetArticleTest(APITestCase):
         self.description = "What is life?"
         self.body = "This is the real life body."
         self.tagList = "life,love,death"
-        self.favorited = True
-        self.favoritesCount = 4
         self.author = 'TestAuthor'
 
         self.slug1 = "life_love_death_1"
@@ -42,8 +40,6 @@ class GetArticleTest(APITestCase):
         self.description1 = "What is life?"
         self.body1 = "This is the real life body."
         self.tagList1 = "life,love,death"
-        self.favorited1 = True
-        self.favoritesCount1 = 4
         self.author1 = 'TestAuthor'
 
         self.article = Articles(
@@ -52,8 +48,6 @@ class GetArticleTest(APITestCase):
             description=self.description,
             body=self.body,
             tagList=self.tagList,
-            favorited=self.favorited,
-            favoritesCount=self.favoritesCount,
             author=Profile.objects.get(
                 username=self.author))
 
@@ -63,8 +57,6 @@ class GetArticleTest(APITestCase):
             description=self.description1,
             body=self.body1,
             tagList=self.tagList1,
-            favorited=self.favorited1,
-            favoritesCount=self.favoritesCount1,
             author=Profile.objects.get(
                 username=self.author1))
 

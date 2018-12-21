@@ -34,8 +34,6 @@ class DeleteArticleTest(APITestCase):
         self.description = "What is life?"
         self.body = "This is the real life body."
         self.tagList = "life,love,death"
-        self.favorited = True
-        self.favoritesCount = 4
         self.author = 'TestAuthor'
 
         self.article = Articles(
@@ -44,8 +42,6 @@ class DeleteArticleTest(APITestCase):
             description=self.description,
             body=self.body,
             tagList=self.tagList,
-            favorited=self.favorited,
-            favoritesCount=self.favoritesCount,
             author=Profile.objects.get(
                 username=self.author))
 
@@ -55,8 +51,6 @@ class DeleteArticleTest(APITestCase):
         self.description1 = "What is life1?"
         self.body1 = "This is the real life body.1"
         self.tagList1 = "life,love,death1"
-        self.favorited1 = True
-        self.favoritesCount1 = 4
         self.author1 = 'TestAuthor'
 
         self.article1 = Articles(
@@ -65,8 +59,6 @@ class DeleteArticleTest(APITestCase):
             description=self.description1,
             body=self.body1,
             tagList=self.tagList1,
-            favorited=self.favorited1,
-            favoritesCount=self.favoritesCount1,
             author=Profile.objects.get(
                 username=self.author1))
 

@@ -1,13 +1,14 @@
 import logging
 import random
-
+import readtime
+import uuid
 from django.utils.text import slugify
+
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-
 from authors.apps.profiles.models import Profile
 from .models import Articles
 from .serializers import ArticleSerializer, CreateArticleSerializer, \
@@ -97,21 +98,23 @@ class ArticleView(GenericAPIView):
             serialized = self.serializer_class(article, context=context)
             return Response({"message": "posted", 'article': serialized.data},
                             status.HTTP_201_CREATED)
-
         except Exception as what_is_this:
             return Response({"error": "{}".format(what_is_this)},
                             status.HTTP_400_BAD_REQUEST)
 
     def slugify_string(self, string):
         processed_slug = slugify(string)
+        # adds str value to slug
+        my_str = str(uuid.uuid4())
+        slug_str = my_str[0:4]
+        # adds int value to slug
         slug_int = random.randint(100, 1000000)
-        new_slug = '{}-{}'.format(processed_slug, slug_int)
+        new_slug = '{}-{}-{}'.format(processed_slug, slug_str, slug_int)
         return new_slug
 
     def readTime(self, story):
-        story_list = story.split(" ")
-        resolved_time = (len(story_list)) / 200
-        read_time = round(resolved_time)
+        resolved_time = readtime.of_text(story)
+        read_time = round(resolved_time.seconds)
         return read_time
 
 
@@ -178,13 +181,19 @@ class ArticleSpecificFunctions(GenericAPIView):
 
     def delete(self, request, slug, **kwargs):
         """Delete a specific article"""
+        logger.debug("*_" * 10)
+        logger.debug(slug)
+
         try:
-            Articles.objects.get(slug=slug).delete()
+            article = Articles.objects.get(slug=slug)
+            article.delete()
 
             return Response({"message":
                              "Article {} deleted successfully".format(slug)},
                             status.HTTP_200_OK)
 
-        except Exception:
+        except Exception as what_now:
+
+            logger.debug("Error is : ".format(what_now))
             return Response({"message": "Could not find that article"},
-                            status.HTTP_400_BAD_REQUEST)
+                            status.HTTP_404_NOT_FOUND)
