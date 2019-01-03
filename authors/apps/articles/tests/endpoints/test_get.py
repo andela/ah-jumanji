@@ -20,8 +20,6 @@ class TestGetEndpoint(APITestCase):
         self.description = "What is life?"
         self.body = "This is the real life body."
         self.tagList = "life,love,death"
-        self.favorited = True
-        self.favoritesCount = 4
         self.author = 'TestAuthor'
 
         self.article = Articles(
@@ -30,8 +28,6 @@ class TestGetEndpoint(APITestCase):
             description=self.description,
             body=self.body,
             tagList=self.tagList,
-            favorited=self.favorited,
-            favoritesCount=self.favoritesCount,
             author=Profile.objects.get(username=self.author))
         self.article.save()
 
@@ -95,8 +91,8 @@ class TestGetEndpoint(APITestCase):
         # checks if the body passed during posting is the one returned
         self.assertIn(b"This is the real life body.", response.content)
 
-        # checks if favoritesCount returned is 4
-        self.assertIn(b"4", response.content)
+        # checks if id returned is 1
+        self.assertIn(b"1", response.content)
 
     def test_wrong_request(self):
         """
