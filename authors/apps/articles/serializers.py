@@ -1,10 +1,24 @@
-from rest_framework import serializers
 import logging
 
-from .models import Articles
+from django.apps import apps
+from rest_framework import serializers
+
 from authors.apps.profiles.serializers import BasicProfileSerializer
+from .models import Articles
 
 logger = logging.getLogger(__file__)
+
+TABLE = apps.get_model('articles', 'Articles')
+
+
+def get_article(slug):
+    try:
+        article = TABLE.objects.get(slug=slug)
+        print(article)
+        return article
+    except TABLE.DoesNotExist:
+        raise serializers.ValidationError(
+            "Slug does not contain any matching article.")
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -40,3 +54,9 @@ class BasicArticleSerializer(serializers.ModelSerializer):
 
     def get_author(self, obj):
         return obj.author.username
+
+
+class ArticleUpdateStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Articles
+        fields = ['read_count']

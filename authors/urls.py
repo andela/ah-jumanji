@@ -58,5 +58,8 @@ urlpatterns = [
         include('authors.apps.notifier.urls')),
     path(
         'api/',
-        include('authors.apps.share_article.urls'))
+        include('authors.apps.share_article.urls')),
+    path(
+        'api/',
+        include('authors.apps.read_stats.urls')),
 ]

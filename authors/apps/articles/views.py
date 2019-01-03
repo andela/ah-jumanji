@@ -1,16 +1,17 @@
+import logging
+import random
+
+from django.utils.text import slugify
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-import logging
-import random
 
-from django.utils.text import slugify
-
-from .models import Articles
 from authors.apps.profiles.models import Profile
-from .serializers import ArticleSerializer, CreateArticleSerializer
+from .models import Articles
+from .serializers import ArticleSerializer, CreateArticleSerializer, \
+    ArticleUpdateStatsSerializer
 
 logger = logging.getLogger(__file__)
 
@@ -31,7 +32,6 @@ class ArticleView(GenericAPIView):
             "request": request,
             "user": request.user
         }
-
         # Overriding to achieve pagination
         page = self.paginate_queryset(self.queryset)
         if page is not None:
@@ -119,6 +119,18 @@ class ArticleSpecificFunctions(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ArticleSerializer
 
+    def read_article(self, request, article):
+        user = request.user
+        if user != article.author.username:
+            read_count = article.read_count
+            read_count += 1
+            new_article = {
+                'read_count': read_count
+            }
+            serializer = ArticleUpdateStatsSerializer(data=new_article)
+            serializer.is_valid(raise_exception=True)
+            serializer.update(article, new_article)
+
     def get(self, request, slug):
         """Retrieve a specific article"""
         context = {
@@ -128,8 +140,11 @@ class ArticleSpecificFunctions(GenericAPIView):
 
         try:
             article = Articles.objects.get(slug=slug)
+            self.read_article(request, article)
+
             serialized = self.serializer_class(article, context=context)
-            return Response({"articles": serialized.data}, status.HTTP_200_OK)
+            return Response({"articles": serialized.data},
+                            status.HTTP_200_OK)
 
         except Exception as error:
             print('Received error is : {}'.format(error))
