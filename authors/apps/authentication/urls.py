@@ -7,7 +7,8 @@ from .views import (
     ResetPasswordRequestAPIView,
     ResetPasswordConfirmAPIView,
     ListUsersAPIView,
-    ActivateAPIView
+    ActivateAPIView,
+    SocialAuthenticate
 )
 
 
@@ -39,4 +40,8 @@ urlpatterns = [
         'users/activate/<uidb64>/<token>',
         ActivateAPIView.as_view(),
         name='activate'),
+    path(
+        'users/social/auth',
+        SocialAuthenticate.as_view(),
+        name='social_auth'),
 ]

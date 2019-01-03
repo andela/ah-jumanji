@@ -1,13 +1,11 @@
 import logging
 from django.db import models
 from rest_framework.reverse import reverse
-
-from authors.apps.authentication.models import User
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Create your models here.
+from authors.apps.authentication.models import User
 from authors.apps.notifier.utils import Notifier
 from authors.apps.profiles.models import Profile
 
