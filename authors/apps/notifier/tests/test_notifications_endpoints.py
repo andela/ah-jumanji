@@ -44,13 +44,13 @@ class TestNotifications:
         # create a follower relationship
         FollowerFactory(followed=user2, follower=user)
 
-        # create an article for user2 and user
-        article1 = ArticlesFactory(author=user)
-        article2 = ArticlesFactory(author=user2)
-
         # favourite the article
         profile1 = ProfileFactory(user=user)
         profile2 = ProfileFactory(user=user2)
+
+        # create an article for user2 and user
+        article1 = ArticlesFactory(author=profile1)
+        article2 = ArticlesFactory(author=profile2)
 
         FavouritesFactory(user=profile1, article=article2, favourite=1)
         FavouritesFactory(user=profile2, article=article1, favourite=1)
@@ -89,8 +89,11 @@ class TestNotifications:
         # create a follower relationship
         FollowerFactory(followed=user2, follower=user)
 
+        # create the user profile
+        profile = ProfileFactory(user=user2)
+
         # create an article for user2
-        ArticlesFactory(author=user2)
+        ArticlesFactory(author=profile)
 
         notification = Notification.objects.all()[0]
 
@@ -125,8 +128,11 @@ class TestNotifications:
         # create a follower relationship
         FollowerFactory(followed=user2, follower=user)
 
+        # create the user profile
+        profile = ProfileFactory(user=user2)
+
         # create an article for user2
-        ArticlesFactory(author=user2)
+        ArticlesFactory(author=profile)
         notification = Notification.objects.all()[0]
 
         # read the notification
@@ -162,8 +168,11 @@ class TestNotifications:
         # create a follower relationship
         FollowerFactory(followed=user2, follower=user)
 
+        # create the user profile
+        profile = ProfileFactory(user=user2)
+
         # create an article for user2
-        ArticlesFactory(author=user2)
+        ArticlesFactory(author=profile)
 
         test_auth_client.get(reverse('mark-notifications-read'))
         response = test_auth_client.get(reverse('notifications'))
@@ -192,8 +201,11 @@ class TestNotifications:
         # create a follower relationship
         FollowerFactory(followed=user2, follower=user)
 
+        # create the user profile
+        profile = ProfileFactory(user=user2)
+
         # create an article for user2
-        ArticlesFactory(author=user2)
+        ArticlesFactory(author=profile)
 
         test_auth_client.get(reverse('mark-notifications-read'))
         response = test_auth_client.get(

@@ -3,9 +3,16 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+import logging
+import random
+
+from django.utils.text import slugify
 
 from .models import Articles
-from .serializers import ArticleSerializer
+from authors.apps.profiles.models import Profile
+from .serializers import ArticleSerializer, CreateArticleSerializer
+
+logger = logging.getLogger(__file__)
 
 
 class ArticleView(GenericAPIView):
@@ -20,10 +27,16 @@ class ArticleView(GenericAPIView):
 
     def get(self, request, **kwargs):
 
+        context = {
+            "request": request,
+            "user": request.user
+        }
+
         # Overriding to achieve pagination
         page = self.paginate_queryset(self.queryset)
         if page is not None:
-            serializer = self.serializer_class(page, many=True)
+            serializer = self.serializer_class(
+                page, context=context, many=True)
             result = self.get_paginated_response(serializer.data)
             return result
 
@@ -57,56 +70,106 @@ class ArticleView(GenericAPIView):
             assert self.paginator is not None
             return Response({'message': 'cannot return paginated data'})
 
-    @staticmethod
-    def post(request, **kwargs):
+    def post(self, request, **kwargs):
         """Create a new article"""
         passed_data = request.data
-        serializer = ArticleSerializer()
-        result = serializer.posting_articles(passed_data)
-        if result == 'Could not post':
-            return Response({"message": result}, status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"message": "posted", 'article': result},
+        posted_data = {
+            "slug": self.slugify_string(passed_data['title']),
+            "title": passed_data['title'],
+            "description": passed_data['description'],
+            "body": passed_data['body'],
+            "tagList": passed_data['tagList'],
+            "readtime": self.readTime(passed_data['body']),
+            "author": Profile.objects.get(username=request.user.username)
+        }
+
+        context = {
+            "request": request,
+            "user": request.user
+        }
+        serializer = CreateArticleSerializer(data=posted_data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            serializer.save()
+            article = Articles.objects.get(slug=posted_data.get('slug', {}))
+
+            serialized = self.serializer_class(article, context=context)
+            return Response({"message": "posted", 'article': serialized.data},
                             status.HTTP_201_CREATED)
+
+        except Exception as what_is_this:
+            return Response({"error": "{}".format(what_is_this)},
+                            status.HTTP_400_BAD_REQUEST)
+
+    def slugify_string(self, string):
+        processed_slug = slugify(string)
+        slug_int = random.randint(100, 1000000)
+        new_slug = '{}-{}'.format(processed_slug, slug_int)
+        return new_slug
+
+    def readTime(self, story):
+        story_list = story.split(" ")
+        resolved_time = (len(story_list)) / 200
+        read_time = round(resolved_time)
+        return read_time
 
 
 class ArticleSpecificFunctions(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ArticleSerializer
 
-    @staticmethod
-    def get(request, slug):
+    def get(self, request, slug):
         """Retrieve a specific article"""
+        context = {
+            "request": request,
+            "user": request.user
+        }
+
         try:
-            serializer = ArticleSerializer()
-            result = serializer.get_specific_objects(slug)
-            return Response({"articles": result}, status.HTTP_200_OK)
+            article = Articles.objects.get(slug=slug)
+            serialized = self.serializer_class(article, context=context)
+            return Response({"articles": serialized.data}, status.HTTP_200_OK)
 
         except Exception as error:
             print('Received error is : {}'.format(error))
             return Response({"message": "Article does not exist"},
                             status.HTTP_404_NOT_FOUND)
 
-    @staticmethod
-    def put(request, slug):
+    def put(self, request, slug):
         """Edit a specific article"""
+        context = {
+            "request": request,
+            "user": request.user
+        }
+
         payload = request.data  # values to update
-        serializer = ArticleSerializer()
-        result = serializer.updateArticle(payload, slug)
-        if result == 'error':
-            return ({'error': 'Could not update'},
-                    status.HTTP_304_NOT_MODIFIED)
 
-        return Response({"message": result,
-                         "articles": serializer.get_all_objects()},
-                        status.HTTP_200_OK)
+        try:
+            article = Articles.objects.get(slug=slug)
+            serializer = CreateArticleSerializer(
+                article, data=payload, partial=True)
 
-    @staticmethod
-    def delete(request, slug, **kwargs):
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            serialized = self.serializer_class(article, context=context)
+            return Response({"message": "Update successful",
+                             "article": serialized.data},
+                            status.HTTP_200_OK)
+
+        except Exception as what:
+            return Response({'error': "{}".format(what)})
+
+    def delete(self, request, slug, **kwargs):
         """Delete a specific article"""
-        serializer = ArticleSerializer()
-        result = serializer.deleteArticle(slug)
-        if result == 'Article does not exist':
-            return Response({"message": result}, status.HTTP_400_BAD_REQUEST)
+        try:
+            Articles.objects.get(slug=slug).delete()
 
-        return Response({"message": result}, status.HTTP_200_OK)
+            return Response({"message":
+                             "Article {} deleted successfully".format(slug)},
+                            status.HTTP_200_OK)
+
+        except Exception:
+            return Response({"message": "Could not find that article"},
+                            status.HTTP_400_BAD_REQUEST)

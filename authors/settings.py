@@ -122,7 +122,8 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 
 DATABASES = {
     # read the database environ
-    'default': env.db()
+    'default': dj_database_url.config(
+        default=env.db(), conn_max_age=1000)
 }
 
 # Password validation

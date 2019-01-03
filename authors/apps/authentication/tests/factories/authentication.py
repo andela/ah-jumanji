@@ -58,8 +58,8 @@ class ArticlesFactory(factory.DjangoModelFactory):
     description = fuzzy.FuzzyText(length=20, prefix='description ', )
     body = fuzzy.FuzzyText(length=200, prefix='body ', suffix=' text')
     tagList = fuzzy.FuzzyChoice(['music', 'tech', 'lifestyle', 'money'])
-    slug = slugify(title)
-    author = factory.SubFactory(UserFactory2)
+    slug = factory.LazyAttribute(lambda o: slugify(o.title))
+    author = factory.SubFactory(ProfileFactory)
 
 
 class FavouritesFactory(factory.DjangoModelFactory):

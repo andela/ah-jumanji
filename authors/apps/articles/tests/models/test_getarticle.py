@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
-from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 from authors.apps.articles.models import Articles
 
 
@@ -37,8 +37,8 @@ class GetArticleTest(APITestCase):
         self.favoritesCount = 4
         self.author = 'TestAuthor'
 
-        self.slug1 = "life_love_death"
-        self.title1 = "Life Love and Death"
+        self.slug1 = "life_love_death_1"
+        self.title1 = "Life Love and Death 1"
         self.description1 = "What is life?"
         self.body1 = "This is the real life body."
         self.tagList1 = "life,love,death"
@@ -47,23 +47,25 @@ class GetArticleTest(APITestCase):
         self.author1 = 'TestAuthor'
 
         self.article = Articles(
+            slug=self.slug,
             title=self.title,
             description=self.description,
             body=self.body,
             tagList=self.tagList,
             favorited=self.favorited,
             favoritesCount=self.favoritesCount,
-            author=User.objects.get(
+            author=Profile.objects.get(
                 username=self.author))
 
         self.article1 = Articles(
+            slug=self.slug1,
             title=self.title1,
             description=self.description1,
             body=self.body1,
             tagList=self.tagList1,
             favorited=self.favorited1,
             favoritesCount=self.favoritesCount1,
-            author=User.objects.get(
+            author=Profile.objects.get(
                 username=self.author1))
 
     def test_item_in_db(self):

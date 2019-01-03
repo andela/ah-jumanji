@@ -16,12 +16,10 @@ class TestGetEndpoint(APITestCase):
         self.token = self.get_user_token()
 
         self.data = {
-            "slug": "posting_test",
             "title": "Posting Test",
             "description": "this is a posting test",
             "body": "The test was successful",
-            "tagList": "live again",
-            "author": 'TestAuthor'
+            "tagList": "live again"
         }
 
     def test_postArticle_status(self):

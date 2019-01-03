@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
-from authors.apps.authentication.models import User
+from authors.apps.profiles.models import Profile
 from authors.apps.articles.models import Articles
 
 
@@ -46,7 +46,7 @@ class DeleteArticleTest(APITestCase):
             tagList=self.tagList,
             favorited=self.favorited,
             favoritesCount=self.favoritesCount,
-            author=User.objects.get(
+            author=Profile.objects.get(
                 username=self.author))
 
         # Second Item
@@ -67,7 +67,7 @@ class DeleteArticleTest(APITestCase):
             tagList=self.tagList1,
             favorited=self.favorited1,
             favoritesCount=self.favoritesCount1,
-            author=User.objects.get(
+            author=Profile.objects.get(
                 username=self.author1))
 
         # Two objects added to db
