@@ -101,7 +101,9 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 TEMPLATES = [
     {
@@ -129,8 +131,7 @@ WSGI_APPLICATION = 'authors.wsgi.application'
 
 DATABASES = {
     # read the database environ
-    'default': dj_database_url.config(
-        default=env.db(), conn_max_age=1000)
+    'default': env.db()
 }
 
 # Password validation
@@ -169,9 +170,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+CORS_ORIGIN_ALLOW_ALL = False
+
 CORS_ORIGIN_WHITELIST = (
     '0.0.0.0:4000',
     'localhost:4000',
+    'localhost:3000',
 )
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
@@ -217,6 +221,8 @@ SWAGGER_SETTINGS = {
         }
     },
 }
+
+LOG_LEVEL = 'DEBUG'
 logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
