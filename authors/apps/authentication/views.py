@@ -1,3 +1,5 @@
+import os
+
 import jwt
 import random
 from django.conf import settings
@@ -25,7 +27,6 @@ from social_django.utils import load_strategy, load_backend
 from social.backends.oauth import BaseOAuth1, BaseOAuth2
 from social_core.exceptions import MissingBackend
 from social.exceptions import AuthAlreadyAssociated
-
 
 # Instantiate base classes
 instance = User()
@@ -116,8 +117,7 @@ class ResetPasswordRequestAPIView(GenericAPIView):
     def post(self, request, **kwargs):
         """User reset password"""
         email = request.data.get('email', None)
-        protocol = 'https://' if request.is_secure() else 'http://'
-        current_site = get_current_site(request)
+        current_site = os.getenv('FRONT_END_URL')
         user = instance.get_user(email=email)
 
         # checks if email is provided
@@ -131,21 +131,19 @@ class ResetPasswordRequestAPIView(GenericAPIView):
 
         # Send reset mail to registered user
         token = auth.generate_reset_token(email)
-        reset_url = protocol + current_site.domain + \
-            reverse('reset_password_confirm',
-                    kwargs={"token": token})
+        reset_url = current_site + "/" + token
         subject, from_email, to = (
             'Authors Haven Reset Password', settings.EMAIL_HOST_USER, email)
         text_content = 'Reset Password'
         html_content = "<p>Click on this <a href='" + \
-            reset_url + "'>Link<a> to reset your password</p>"
+                       reset_url + "'>Link<a> to reset your password</p>"
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
         return Response(
             {
                 "message":
-                "A password reset email has been sent to your account!"},
+                    "A password reset email has been sent to your account!"},
             status=status.HTTP_200_OK)
 
 
@@ -156,7 +154,19 @@ class ResetPasswordConfirmAPIView(GenericAPIView):
 
     def put(self, request, token):
         """Change user password"""
-        payload = jwt.decode(token, settings.SECRET_KEY)
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY)
+        except jwt.exceptions.InvalidSignatureError:
+            response = {
+                "error": "The secret validation token passed is invalid"
+            }
+            return Response(response, status.HTTP_400_BAD_REQUEST)
+        except jwt.exceptions.DecodeError:
+            response = {
+                "error": "The secret validation token passed is invalid"
+            }
+            return Response(response, status.HTTP_400_BAD_REQUEST)
+
         user = instance.get_user(email=payload["email"])
 
         password = request.data.get('password', None)
@@ -244,8 +254,8 @@ class SocialAuthenticate(GenericAPIView):
                 token = payload.get('access_token')
 
             else:
-                return Response({'message':
-                                 'Could not identify Oauth property used'})
+                return Response({'message': 'Could not identify Oauth '
+                                            'property used'})
 
         except MissingBackend:
             return Response({"error": "The Provider is invalid"},
