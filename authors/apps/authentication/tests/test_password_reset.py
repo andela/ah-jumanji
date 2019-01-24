@@ -15,7 +15,6 @@ class TestResetPassword():
         "email": "testuser@gmail.com",
         "password": "Test@user1"
     }
-
     def test_registered_user_get_reset_email(self, test_client):
         User.objects.create_user(**self.user)
 

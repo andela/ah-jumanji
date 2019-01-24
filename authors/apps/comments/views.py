@@ -47,9 +47,13 @@ class CommentAPIView(GenericAPIView):
 
     def get(self, request, slug):
         """Get all comments"""
+        try:
+            article = Articles.objects.get(slug=slug)
+        except Articles.DoesNotExist:
+            raise exceptions.NotFound("Article Not found")
 
         try:
-            comments = Comment.objects.all()
+            comments = Comment.objects.filter(article_id=article.id)
         except Comment.DoesNotExist:
             raise exceptions.NotFound("No comments found")
 
@@ -57,6 +61,7 @@ class CommentAPIView(GenericAPIView):
         for comment in comments:
             author = Profile.objects.get(user_id=comment.commenter_id)
             comment = {
+                "article_slug": article.slug,
                 "id": comment.id,
                 "createdAt": comment.createdAt,
                 "updatedAt": comment.updatedAt,
