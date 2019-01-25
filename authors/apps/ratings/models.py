@@ -23,6 +23,9 @@ class Rating(models.Model):
     rater = models.ForeignKey(Profile, on_delete=models.CASCADE)
     article = models.ForeignKey(Articles, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('article', 'rater')
+
     @staticmethod
     def get_average_rating(article_id):
 

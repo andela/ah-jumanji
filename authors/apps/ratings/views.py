@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import exceptions
 
-
 # local imports
 from .serializers import RatingSerializer, BasicRatingSerializer
 from .models import Rating
@@ -41,7 +40,8 @@ class RatingAPIView(GenericAPIView):
 
         # check if rating exists for the article
         try:
-            current_rating = Rating.objects.get(rater_id=request.user.id)
+            current_rating = Rating.objects.get(
+                rater_id=request.user.id, article_id=article.id)
             # perform an update if exists
             serializer = BasicRatingSerializer(
                 current_rating, data=request.data, partial=True)
@@ -53,7 +53,9 @@ class RatingAPIView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        rating = Rating.objects.get(rater_id=request.user.id)
+        rating = Rating.objects.get(
+            rater_id=request.user.id,
+            article_id=article.id)
         serialized = self.serializer_class(rating)
 
         response = ({"message": "Rating added successfully",
