@@ -2,10 +2,15 @@ import logging
 import random
 import readtime
 import uuid
+import os
 from django.utils.text import slugify
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -197,3 +202,32 @@ class ArticleSpecificFunctions(GenericAPIView):
             logger.debug("Error is : ".format(what_now))
             return Response({"message": "Could not find that article"},
                             status.HTTP_404_NOT_FOUND)
+
+
+class ImageUpload(APIView):
+    serializer_class = ArticleSerializer
+    """Upload image to cloudinary"""
+    def post(self, request, **kwargs):
+        try:
+            if request.method == 'POST' and request.FILES['image_file']:
+                myfile = request.FILES['image_file']
+                cloudinary.config(
+                    cloud_name="dolwj4vkq",
+                    api_key="449343533162222",
+                    api_secret="rdyvkMWU6Ud1ypH943NJ9r4QQ7k"
+                )
+                result = cloudinary.uploader.upload(myfile)
+                return Response({
+                    'success': 'file posted',
+                    'link': result['secure_url'],
+                    }, status.HTTP_200_OK)
+            else:
+                return Response({
+                    'error': 'Could not get file from posted data'},
+                    status.HTTP_404_NOT_FOUND)
+
+        except Exception as error:
+            print("The error is : {}".format(error))
+            return Response({
+                'error': 'I cant do that !!! '},
+                status.HTTP_400_BAD_REQUEST)
